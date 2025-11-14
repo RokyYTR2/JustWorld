@@ -1,19 +1,6 @@
-name: JustVanish
-version: '0.0.3'
+name: JustWorld
+version: '0.0.1'
 main: dev.meyba.justWorld.JustWorld
 api-version: '1.21'
-authors: [ Meyba._. ]
-description: Just a vanish plugin.
-commands:
-  vanish:
-    description: Main command for the JustVanish plugin.
-    usage: /vanish [reload]
-    permission: justvanish.use
-    permission-message: &cYou don't have permission to use this command.
-permissions:
-  justvanish.use:
-    description: Allows a player to use the /vanish command.
-    default: op
-  justvanish.reload:
-    description: Allows a player to reload the plugin configuration.
-    default: op
+authors: [ Meyba._. Jezevcik20 ]
+description: Just a world plugin.
