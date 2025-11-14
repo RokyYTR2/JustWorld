@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import java.lang.management.ManagementFactory;
 import java.util.List;
 
 public class JustWorldCommand implements CommandExecutor {
@@ -73,7 +74,7 @@ public class JustWorldCommand implements CommandExecutor {
     }
 
     private String getUptime() {
-        long uptimeMillis = System.currentTimeMillis() - plugin.getServer().getStartTime();
+        long uptimeMillis = ManagementFactory.getRuntimeMXBean().getUptime();
         long seconds = uptimeMillis / 1000;
         long minutes = seconds / 60;
         long hours = minutes / 60;
