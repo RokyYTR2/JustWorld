@@ -15,8 +15,15 @@ public record WorldData(
         long seed,
         boolean pvpEnabled,
         boolean keepSpawnInMemory,
-        boolean autoLoad
+        boolean autoLoad,
+        GeneratorType generatorType
 ) {
+
+    public enum GeneratorType {
+        DEFAULT,  // Standard Minecraft generation
+        VOID,     // Empty void world (fastest)
+        FLAT      // Simple flat world (very fast)
+    }
 
     public static WorldData fromWorld(World world) {
         return new WorldData(
@@ -28,16 +35,26 @@ public record WorldData(
                 world.getSeed(),
                 world.getPVP(),
                 world.getKeepSpawnInMemory(),
-                true
+                true,
+                GeneratorType.DEFAULT
         );
     }
 
     public WorldCreator toWorldCreator() {
-        return new WorldCreator(name)
+        WorldCreator creator = new WorldCreator(name)
                 .environment(environment)
                 .type(worldType)
                 .generateStructures(generateStructures)
                 .seed(seed);
+
+        // Apply custom generator for maximum speed
+        switch (generatorType) {
+            case VOID -> creator.generator(new VoidWorldGenerator());
+            case FLAT -> creator.generator(new FlatWorldGenerator());
+            // DEFAULT uses vanilla generation
+        }
+
+        return creator;
     }
 
     public static Builder builder(String name) {
@@ -53,6 +70,7 @@ public record WorldData(
         private boolean pvpEnabled = true;
         private boolean keepSpawnInMemory = false;
         private boolean autoLoad = true;
+        private GeneratorType generatorType = GeneratorType.DEFAULT;
 
         private Builder(String name) {
             this.name = name;
@@ -93,6 +111,11 @@ public record WorldData(
             return this;
         }
 
+        public Builder generatorType(GeneratorType generatorType) {
+            this.generatorType = generatorType;
+            return this;
+        }
+
         public WorldData build() {
             return new WorldData(
                     name,
@@ -103,7 +126,8 @@ public record WorldData(
                     seed,
                     pvpEnabled,
                     keepSpawnInMemory,
-                    autoLoad
+                    autoLoad,
+                    generatorType
             );
         }
     }

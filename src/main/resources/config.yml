@@ -34,6 +34,11 @@ performance:
   # Pre-generate spawn area (0 = disabled, recommended: 0 for fastest creation)
   pre-generate-radius: 0
 
+# Generator types for ultra-fast world creation:
+# - DEFAULT: Standard Minecraft generation (~500-1500ms)
+# - VOID: Empty void world (~50-200ms) - Perfect for lobbies/arenas!
+# - FLAT: Simple flat world (~100-400ms) - Great for building/minigames!
+
 # Messages
 messages:
   prefix: "&6[JustWorld]&r "

@@ -183,6 +183,14 @@ public class WorldManager {
             if (worldSection == null) return;
 
             try {
+                WorldData.GeneratorType generatorType = WorldData.GeneratorType.DEFAULT;
+                try {
+                    generatorType = WorldData.GeneratorType.valueOf(
+                            worldSection.getString("generatorType", "DEFAULT").toUpperCase());
+                } catch (IllegalArgumentException ignored) {
+                    // Use default if invalid
+                }
+
                 WorldData data = WorldData.builder(worldName)
                         .environment(World.Environment.valueOf(
                                 worldSection.getString("environment", "NORMAL")))
@@ -193,6 +201,7 @@ public class WorldManager {
                         .pvpEnabled(worldSection.getBoolean("pvp", true))
                         .keepSpawnInMemory(worldSection.getBoolean("keepSpawnInMemory", false))
                         .autoLoad(worldSection.getBoolean("autoLoad", true))
+                        .generatorType(generatorType)
                         .build();
 
                 worldDataMap.put(worldName, data);
@@ -217,6 +226,7 @@ public class WorldManager {
                 config.set(path + "pvp", data.pvpEnabled());
                 config.set(path + "keepSpawnInMemory", data.keepSpawnInMemory());
                 config.set(path + "autoLoad", data.autoLoad());
+                config.set(path + "generatorType", data.generatorType().name());
             });
 
             try {

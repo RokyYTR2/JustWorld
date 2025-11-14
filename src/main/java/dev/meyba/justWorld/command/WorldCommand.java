@@ -45,20 +45,35 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
 
     private void handleCreate(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /world create <name> [normal|nether|end] [seed]");
+            sender.sendMessage(ChatColor.RED + "Usage: /world create <name> [normal|nether|end|void|flat] [seed]");
+            sender.sendMessage(ChatColor.GRAY + "Generator types: normal (default), void (fastest!), flat (fast)");
             return;
         }
 
         String worldName = args[1];
         World.Environment environment = World.Environment.NORMAL;
+        WorldData.GeneratorType generatorType = WorldData.GeneratorType.DEFAULT;
         long seed = 0;
 
         if (args.length >= 3) {
-            try {
-                environment = World.Environment.valueOf(args[2].toUpperCase());
-            } catch (IllegalArgumentException e) {
-                sender.sendMessage(ChatColor.RED + "Invalid environment! Use: normal, nether, end");
-                return;
+            String type = args[2].toUpperCase();
+
+            // Check if it's a generator type
+            if (type.equals("VOID") || type.equals("FLAT")) {
+                try {
+                    generatorType = WorldData.GeneratorType.valueOf(type);
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage(ChatColor.RED + "Invalid generator type!");
+                    return;
+                }
+            } else {
+                // It's an environment type
+                try {
+                    environment = World.Environment.valueOf(type);
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage(ChatColor.RED + "Invalid type! Use: normal, nether, end, void, flat");
+                    return;
+                }
             }
         }
 
@@ -71,17 +86,22 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        sender.sendMessage(ChatColor.YELLOW + "Creating world " + ChatColor.WHITE + worldName + ChatColor.YELLOW + " asynchronously...");
+        String typeInfo = generatorType == WorldData.GeneratorType.VOID ? " (VOID - Ultra Fast!)" :
+                         generatorType == WorldData.GeneratorType.FLAT ? " (FLAT - Very Fast!)" : "";
+
+        sender.sendMessage(ChatColor.YELLOW + "Creating world " + ChatColor.WHITE + worldName +
+                          ChatColor.YELLOW + typeInfo + " asynchronously...");
 
         WorldData worldData = WorldData.builder(worldName)
                 .environment(environment)
                 .seed(seed)
+                .generatorType(generatorType)
                 .build();
 
         plugin.getWorldManager().createWorldAsync(worldData).thenAccept(result -> {
             if (result.isSuccess()) {
                 sender.sendMessage(ChatColor.GREEN + "World " + ChatColor.WHITE + worldName +
-                        ChatColor.GREEN + " created successfully in " + ChatColor.GOLD + result.getFormattedTime() + ChatColor.GREEN + "!");
+                        ChatColor.GREEN + " created in " + ChatColor.GOLD + result.getFormattedTime() + ChatColor.GREEN + "!");
             } else {
                 sender.sendMessage(ChatColor.RED + "Failed to create world!");
             }
@@ -167,15 +187,30 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
 
         String worldName = args[1];
 
-        plugin.getWorldManager().loadWorldAsync(worldName).thenAccept(world -> {
-            if (world == null) {
+        // OPTIMIZATION: Check if world is already loaded (no async needed)
+        World world = plugin.getWorldManager().getWorld(worldName);
+
+        if (world != null) {
+            // World already loaded - instant teleport!
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                player.teleport(world.getSpawnLocation());
+                player.sendMessage(ChatColor.GREEN + "Teleported to " + ChatColor.WHITE + worldName + ChatColor.GREEN + "!");
+            });
+            return;
+        }
+
+        // World not loaded - load it asynchronously
+        player.sendMessage(ChatColor.YELLOW + "Loading world " + worldName + "...");
+
+        plugin.getWorldManager().loadWorldAsync(worldName).thenAccept(loadedWorld -> {
+            if (loadedWorld == null) {
                 player.sendMessage(ChatColor.RED + "World " + worldName + " doesn't exist!");
                 return;
             }
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                player.teleport(world.getSpawnLocation());
-                player.sendMessage(ChatColor.GREEN + "Teleported to world " + ChatColor.WHITE + worldName + ChatColor.GREEN + "!");
+                player.teleport(loadedWorld.getSpawnLocation());
+                player.sendMessage(ChatColor.GREEN + "Teleported to " + ChatColor.WHITE + worldName + ChatColor.GREEN + "!");
             });
         });
     }
@@ -243,7 +278,7 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
                                 .toList());
             }
         } else if (args.length == 3 && args[0].equalsIgnoreCase("create")) {
-            completions.addAll(Arrays.asList("normal", "nether", "end"));
+            completions.addAll(Arrays.asList("normal", "nether", "end", "void", "flat"));
         }
 
         return completions.stream()

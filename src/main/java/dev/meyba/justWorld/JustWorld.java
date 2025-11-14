@@ -1,5 +1,6 @@
 package dev.meyba.justWorld;
 
+import dev.meyba.justWorld.command.JustWorldCommand;
 import dev.meyba.justWorld.command.WorldCommand;
 import dev.meyba.justWorld.world.WorldManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +18,10 @@ public final class JustWorld extends JavaPlugin {
         WorldCommand worldCommand = new WorldCommand(this);
         getCommand("world").setExecutor(worldCommand);
         getCommand("world").setTabCompleter(worldCommand);
+
+        JustWorldCommand justWorldCommand = new JustWorldCommand(this);
+        getCommand("justworld").setExecutor(justWorldCommand);
+
         getLogger().info("Commands registered");
 
         worldManager.loadAllWorldsAsync().thenRun(() -> {

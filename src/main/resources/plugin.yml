@@ -12,6 +12,12 @@ commands:
     aliases: [w, jw]
     permission: justworld.admin
     permission-message: "You don't have permission to use this command!"
+  justworld:
+    description: Show plugin info and statistics
+    usage: /justworld [reload]
+    aliases: [jworld]
+    permission: justworld.admin
+    permission-message: "You don't have permission to use this command!"
 
 permissions:
   justworld.admin:
