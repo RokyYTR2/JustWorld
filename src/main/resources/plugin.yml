@@ -3,4 +3,38 @@ version: '0.0.1'
 main: dev.meyba.justWorld.JustWorld
 api-version: '1.21'
 authors: [ Meyba._. Jezevcik20 ]
-description: Just a world plugin.
+description: Highly optimized async world management plugin
+
+commands:
+  world:
+    description: Main world management command
+    usage: /world <create|delete|load|unload|tp|list|info>
+    aliases: [w, jw]
+    permission: justworld.admin
+    permission-message: "You don't have permission to use this command!"
+
+permissions:
+  justworld.admin:
+    description: Access to all JustWorld commands
+    default: op
+  justworld.create:
+    description: Create new worlds
+    default: op
+  justworld.delete:
+    description: Delete worlds
+    default: op
+  justworld.load:
+    description: Load worlds
+    default: op
+  justworld.unload:
+    description: Unload worlds
+    default: op
+  justworld.teleport:
+    description: Teleport to worlds
+    default: op
+  justworld.list:
+    description: List all worlds
+    default: op
+  justworld.info:
+    description: View world information
+    default: op

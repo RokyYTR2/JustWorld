@@ -1,0 +1,34 @@
+# JustWorld Configuration
+# Highly optimized async world management
+
+# Plugin settings
+settings:
+  # Enable debug messages
+  debug: false
+
+  # Auto-save interval for worlds.yml (in ticks, 20 ticks = 1 second)
+  auto-save-interval: 6000
+
+  # Enable async world operations (recommended)
+  async-operations: true
+
+# Default world settings (used when creating new worlds)
+defaults:
+  environment: NORMAL
+  world-type: NORMAL
+  generate-structures: true
+  pvp: true
+  keep-spawn-in-memory: true
+  auto-load: true
+  difficulty: NORMAL
+
+# Messages
+messages:
+  prefix: "&6[JustWorld]&r "
+  world-created: "&aWorld {world} has been created!"
+  world-deleted: "&cWorld {world} has been deleted!"
+  world-loaded: "&aWorld {world} has been loaded!"
+  world-unloaded: "&eWorld {world} has been unloaded!"
+  teleported: "&aYou have been teleported to {world}!"
+  world-not-found: "&cWorld {world} doesn't exist!"
+  no-permission: "&cYou don't have permission to do that!"
