@@ -1,7 +1,6 @@
 package dev.meyba.justWorld.command;
 
 import dev.meyba.justWorld.JustWorld;
-import dev.meyba.justWorld.world.WorldCreationResult;
 import dev.meyba.justWorld.world.WorldData;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class WorldCommand implements CommandExecutor, TabCompleter {
-
     private final JustWorld plugin;
 
     public WorldCommand(JustWorld plugin) {
@@ -31,7 +29,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        // All operations run asynchronously!
         switch (args[0].toLowerCase()) {
             case "create" -> handleCreate(sender, args);
             case "delete", "remove" -> handleDelete(sender, args);
@@ -176,7 +173,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
                 return;
             }
 
-            // Teleport must be on main thread
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 player.teleport(world.getSpawnLocation());
                 player.sendMessage(ChatColor.GREEN + "Teleported to world " + ChatColor.WHITE + worldName + ChatColor.GREEN + "!");

@@ -51,7 +51,7 @@ public record WorldData(
         private boolean generateStructures = true;
         private long seed = 0;
         private boolean pvpEnabled = true;
-        private boolean keepSpawnInMemory = false; // Optimized: faster world creation
+        private boolean keepSpawnInMemory = false;
         private boolean autoLoad = true;
 
         private Builder(String name) {

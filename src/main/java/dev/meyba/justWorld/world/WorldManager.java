@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 public class WorldManager {
-
     private final JustWorld plugin;
     private final Map<String, WorldData> worldDataMap;
     private final File worldsFile;
@@ -26,27 +26,21 @@ public class WorldManager {
         loadWorldsData();
     }
 
-    /**
-     * Asynchronously creates a new world with performance optimizations
-     */
     public CompletableFuture<WorldCreationResult> createWorldAsync(WorldData worldData) {
         return CompletableFuture.supplyAsync(() -> {
             long startTime = System.currentTimeMillis();
 
             try {
-                // Create world on main thread (required by Bukkit API)
                 World world = Bukkit.getScheduler().callSyncMethod(plugin, () -> {
                     WorldCreator creator = worldData.toWorldCreator();
 
-                    // Performance optimization: Don't load spawn chunks during creation
-                    creator.keepSpawnLoaded(false);
+                    creator.keepSpawnInMemory(false);
 
                     World newWorld = creator.createWorld();
                     if (newWorld != null) {
                         configureWorld(newWorld, worldData);
                         worldDataMap.put(newWorld.getName(), worldData);
 
-                        // Save asynchronously without blocking
                         saveWorldsDataAsync();
                     }
                     return newWorld;
@@ -62,62 +56,63 @@ public class WorldManager {
         });
     }
 
-    /**
-     * Asynchronously loads an existing world
-     */
     public CompletableFuture<World> loadWorldAsync(String worldName) {
         return CompletableFuture.supplyAsync(() -> {
             WorldData data = worldDataMap.get(worldName);
             if (data == null) {
-                // Try to load world even if not in config
                 File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
                 if (!worldFolder.exists()) {
                     return null;
                 }
             }
 
-            return Bukkit.getScheduler().callSyncMethod(plugin, () -> {
-                World world = Bukkit.getWorld(worldName);
-                if (world == null && data != null) {
-                    world = data.toWorldCreator().createWorld();
-                    if (world != null) {
-                        configureWorld(world, data);
+            try {
+                return Bukkit.getScheduler().callSyncMethod(plugin, () -> {
+                    World world = Bukkit.getWorld(worldName);
+                    if (world == null && data != null) {
+                        world = data.toWorldCreator().createWorld();
+                        if (world != null) {
+                            configureWorld(world, data);
+                        }
                     }
-                }
-                return world;
-            }).get();
+                    return world;
+                }).get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         }).exceptionally(ex -> {
             plugin.getLogger().severe("Error loading world: " + ex.getMessage());
             return null;
         });
     }
 
-    /**
-     * Asynchronously unloads a world from server (without deleting files)
-     */
     public CompletableFuture<Boolean> unloadWorldAsync(String worldName) {
         return CompletableFuture.supplyAsync(() -> {
-            return Bukkit.getScheduler().callSyncMethod(plugin, () -> {
-                World world = Bukkit.getWorld(worldName);
-                if (world == null) return false;
+            try {
+                return Bukkit.getScheduler().callSyncMethod(plugin, () -> {
+                    World world = Bukkit.getWorld(worldName);
+                    if (world == null) return false;
 
-                // Teleport all players to spawn world
-                World spawnWorld = Bukkit.getWorlds().get(0);
-                world.getPlayers().forEach(player ->
-                    player.teleport(spawnWorld.getSpawnLocation())
-                );
+                    World spawnWorld = Bukkit.getWorlds().get(0);
+                    world.getPlayers().forEach(player ->
+                        player.teleport(spawnWorld.getSpawnLocation())
+                    );
 
-                return Bukkit.unloadWorld(world, true);
-            }).get();
+                    return Bukkit.unloadWorld(world, true);
+                }).get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         }).exceptionally(ex -> {
             plugin.getLogger().severe("Error unloading world: " + ex.getMessage());
             return false;
         });
     }
 
-    /**
-     * Asynchronously deletes a world (including all files)
-     */
     public CompletableFuture<Boolean> deleteWorldAsync(String worldName) {
         return unloadWorldAsync(worldName).thenApplyAsync(success -> {
             if (!success) return false;
@@ -133,9 +128,6 @@ public class WorldManager {
         });
     }
 
-    /**
-     * Loads all auto-load worlds at server startup
-     */
     public CompletableFuture<Void> loadAllWorldsAsync() {
         List<CompletableFuture<World>> futures = new ArrayList<>();
 
