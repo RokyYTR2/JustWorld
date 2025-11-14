@@ -9,7 +9,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -188,7 +191,6 @@ public class WorldManager {
                     generatorType = WorldData.GeneratorType.valueOf(
                             worldSection.getString("generatorType", "DEFAULT").toUpperCase());
                 } catch (IllegalArgumentException ignored) {
-                    // Use default if invalid
                 }
 
                 WorldData data = WorldData.builder(worldName)

@@ -58,7 +58,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         if (args.length >= 3) {
             String type = args[2].toUpperCase();
 
-            // Check for generator types first
             if (type.equals("VOID") || type.equals("FLAT")) {
                 try {
                     generatorType = WorldData.GeneratorType.valueOf(type);
@@ -67,7 +66,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
             } else {
-                // Map environment names
                 try {
                     environment = switch (type) {
                         case "NORMAL" -> World.Environment.NORMAL;
