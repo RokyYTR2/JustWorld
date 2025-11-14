@@ -12,7 +12,6 @@ public class VoidWorldGenerator extends ChunkGenerator {
 
     @Override
     public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
-        // Generate single bedrock block at spawn (0, 64, 0)
         if (chunkX == 0 && chunkZ == 0) {
             chunkData.setBlock(0, 64, 0, Material.BEDROCK);
         }
@@ -29,7 +28,6 @@ public class VoidWorldGenerator extends ChunkGenerator {
 
     @Override
     public Location getFixedSpawnLocation(World world, Random random) {
-        // Spawn on single bedrock block
         return new Location(world, 0.5, 65, 0.5);
     }
 

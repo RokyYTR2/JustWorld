@@ -51,7 +51,6 @@ public class WorldManager {
 
                 long creationTime = System.currentTimeMillis() - startTime;
                 return new WorldCreationResult(world, creationTime);
-
             } catch (Exception ex) {
                 plugin.getLogger().severe("Error creating world: " + ex.getMessage());
                 return new WorldCreationResult(null, System.currentTimeMillis() - startTime);

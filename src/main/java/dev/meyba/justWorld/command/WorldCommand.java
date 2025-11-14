@@ -92,7 +92,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        // Send appropriate creation message based on generator type
         String messageKey = switch (generatorType) {
             case VOID -> "creating-void";
             case FLAT -> "creating-flat";
@@ -197,11 +196,9 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
 
         String worldName = args[1];
 
-        // OPTIMIZATION: Check if world is already loaded (no async needed)
         World world = plugin.getWorldManager().getWorld(worldName);
 
         if (world != null) {
-            // World already loaded - instant teleport!
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 player.teleport(world.getSpawnLocation());
                 msg.send(player, "teleported", "{world}", worldName);
@@ -209,7 +206,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // World not loaded - load it asynchronously
         msg.send(player, "loading-world", "{world}", worldName);
 
         plugin.getWorldManager().loadWorldAsync(worldName).thenAccept(loadedWorld -> {
