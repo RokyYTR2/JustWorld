@@ -12,26 +12,26 @@ public final class JustWorld extends JavaPlugin {
     public void onEnable() {
         long startTime = System.currentTimeMillis();
 
-        // Inicializace WorldManager
+        // Initialize WorldManager
         this.worldManager = new WorldManager(this);
-        getLogger().info("WorldManager inicializován");
+        getLogger().info("WorldManager initialized");
 
-        // Registrace příkazů
+        // Register commands
         WorldCommand worldCommand = new WorldCommand(this);
         getCommand("world").setExecutor(worldCommand);
         getCommand("world").setTabCompleter(worldCommand);
-        getLogger().info("Příkazy zaregistrovány");
+        getLogger().info("Commands registered");
 
-        // Asynchronní načtení všech světů
+        // Asynchronously load all worlds
         worldManager.loadAllWorldsAsync().thenRun(() -> {
             long loadTime = System.currentTimeMillis() - startTime;
-            getLogger().info("JustWorld byl aktivován za " + loadTime + "ms!");
+            getLogger().info("JustWorld enabled in " + loadTime + "ms!");
         });
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("JustWorld byl deaktivován!");
+        getLogger().info("JustWorld disabled!");
     }
 
     public WorldManager getWorldManager() {

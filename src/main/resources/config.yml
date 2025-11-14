@@ -1,5 +1,5 @@
 # JustWorld Configuration
-# Highly optimized async world management
+# Highly optimized async world management plugin
 
 # Plugin settings
 settings:
@@ -9,7 +9,7 @@ settings:
   # Auto-save interval for worlds.yml (in ticks, 20 ticks = 1 second)
   auto-save-interval: 6000
 
-  # Enable async world operations (recommended)
+  # Enable async world operations (highly recommended for performance)
   async-operations: true
 
 # Default world settings (used when creating new worlds)
@@ -18,9 +18,21 @@ defaults:
   world-type: NORMAL
   generate-structures: true
   pvp: true
-  keep-spawn-in-memory: true
+
+  # PERFORMANCE: Keep false for faster world creation
+  # Spawn chunks won't be loaded until a player joins
+  keep-spawn-in-memory: false
+
   auto-load: true
   difficulty: NORMAL
+
+# Performance optimizations
+performance:
+  # Show world creation time in chat
+  show-creation-time: true
+
+  # Pre-generate spawn area (0 = disabled, recommended: 0 for fastest creation)
+  pre-generate-radius: 0
 
 # Messages
 messages:

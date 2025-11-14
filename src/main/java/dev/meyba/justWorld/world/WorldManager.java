@@ -27,34 +27,49 @@ public class WorldManager {
     }
 
     /**
-     * Asynchronně vytvoří nový svět
+     * Asynchronously creates a new world with performance optimizations
      */
-    public CompletableFuture<World> createWorldAsync(WorldData worldData) {
+    public CompletableFuture<WorldCreationResult> createWorldAsync(WorldData worldData) {
         return CompletableFuture.supplyAsync(() -> {
-            // Synchronní vytvoření světa (musí být na main thread)
-            return Bukkit.getScheduler().callSyncMethod(plugin, () -> {
-                World world = worldData.toWorldCreator().createWorld();
-                if (world != null) {
-                    configureWorld(world, worldData);
-                    worldDataMap.put(world.getName(), worldData);
-                    saveWorldsDataAsync();
-                }
-                return world;
-            }).get();
-        }).exceptionally(ex -> {
-            plugin.getLogger().severe("Chyba při vytváření světa: " + ex.getMessage());
-            return null;
+            long startTime = System.currentTimeMillis();
+
+            try {
+                // Create world on main thread (required by Bukkit API)
+                World world = Bukkit.getScheduler().callSyncMethod(plugin, () -> {
+                    WorldCreator creator = worldData.toWorldCreator();
+
+                    // Performance optimization: Don't load spawn chunks during creation
+                    creator.keepSpawnLoaded(false);
+
+                    World newWorld = creator.createWorld();
+                    if (newWorld != null) {
+                        configureWorld(newWorld, worldData);
+                        worldDataMap.put(newWorld.getName(), worldData);
+
+                        // Save asynchronously without blocking
+                        saveWorldsDataAsync();
+                    }
+                    return newWorld;
+                }).get();
+
+                long creationTime = System.currentTimeMillis() - startTime;
+                return new WorldCreationResult(world, creationTime);
+
+            } catch (Exception ex) {
+                plugin.getLogger().severe("Error creating world: " + ex.getMessage());
+                return new WorldCreationResult(null, System.currentTimeMillis() - startTime);
+            }
         });
     }
 
     /**
-     * Asynchronně načte existující svět
+     * Asynchronously loads an existing world
      */
     public CompletableFuture<World> loadWorldAsync(String worldName) {
         return CompletableFuture.supplyAsync(() -> {
             WorldData data = worldDataMap.get(worldName);
             if (data == null) {
-                // Zkusíme načíst svět, i když není v konfiguraci
+                // Try to load world even if not in config
                 File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
                 if (!worldFolder.exists()) {
                     return null;
@@ -72,13 +87,13 @@ public class WorldManager {
                 return world;
             }).get();
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Chyba při načítání světa: " + ex.getMessage());
+            plugin.getLogger().severe("Error loading world: " + ex.getMessage());
             return null;
         });
     }
 
     /**
-     * Asynchronně odebere svět ze serveru (bez mazání souborů)
+     * Asynchronously unloads a world from server (without deleting files)
      */
     public CompletableFuture<Boolean> unloadWorldAsync(String worldName) {
         return CompletableFuture.supplyAsync(() -> {
@@ -86,7 +101,7 @@ public class WorldManager {
                 World world = Bukkit.getWorld(worldName);
                 if (world == null) return false;
 
-                // Teleportuj všechny hráče do spawn světa
+                // Teleport all players to spawn world
                 World spawnWorld = Bukkit.getWorlds().get(0);
                 world.getPlayers().forEach(player ->
                     player.teleport(spawnWorld.getSpawnLocation())
@@ -95,13 +110,13 @@ public class WorldManager {
                 return Bukkit.unloadWorld(world, true);
             }).get();
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Chyba při unloadování světa: " + ex.getMessage());
+            plugin.getLogger().severe("Error unloading world: " + ex.getMessage());
             return false;
         });
     }
 
     /**
-     * Asynchronně smaže svět (včetně souborů)
+     * Asynchronously deletes a world (including all files)
      */
     public CompletableFuture<Boolean> deleteWorldAsync(String worldName) {
         return unloadWorldAsync(worldName).thenApplyAsync(success -> {
@@ -113,13 +128,13 @@ public class WorldManager {
             File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
             return deleteDirectory(worldFolder);
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Chyba při mazání světa: " + ex.getMessage());
+            plugin.getLogger().severe("Error deleting world: " + ex.getMessage());
             return false;
         });
     }
 
     /**
-     * Načte všechny světy při startu serveru
+     * Loads all auto-load worlds at server startup
      */
     public CompletableFuture<Void> loadAllWorldsAsync() {
         List<CompletableFuture<World>> futures = new ArrayList<>();
@@ -130,7 +145,7 @@ public class WorldManager {
 
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .thenRun(() -> plugin.getLogger().info(
-                        "Načteno " + futures.size() + " světů asynchronně!"
+                        "Loaded " + futures.size() + " worlds asynchronously!"
                 ));
     }
 
@@ -161,7 +176,7 @@ public class WorldManager {
             try {
                 worldsFile.createNewFile();
             } catch (IOException e) {
-                plugin.getLogger().severe("Nelze vytvořit worlds.yml: " + e.getMessage());
+                plugin.getLogger().severe("Cannot create worlds.yml: " + e.getMessage());
                 return;
             }
         }
@@ -184,17 +199,17 @@ public class WorldManager {
                         .generateStructures(worldSection.getBoolean("generateStructures", true))
                         .seed(worldSection.getLong("seed", 0))
                         .pvpEnabled(worldSection.getBoolean("pvp", true))
-                        .keepSpawnInMemory(worldSection.getBoolean("keepSpawnInMemory", true))
+                        .keepSpawnInMemory(worldSection.getBoolean("keepSpawnInMemory", false))
                         .autoLoad(worldSection.getBoolean("autoLoad", true))
                         .build();
 
                 worldDataMap.put(worldName, data);
             } catch (Exception e) {
-                plugin.getLogger().warning("Chyba při načítání světa " + worldName + ": " + e.getMessage());
+                plugin.getLogger().warning("Error loading world " + worldName + ": " + e.getMessage());
             }
         });
 
-        plugin.getLogger().info("Načteno " + worldDataMap.size() + " světů z konfigurace");
+        plugin.getLogger().info("Loaded " + worldDataMap.size() + " worlds from configuration");
     }
 
     private CompletableFuture<Void> saveWorldsDataAsync() {
@@ -215,7 +230,7 @@ public class WorldManager {
             try {
                 config.save(worldsFile);
             } catch (IOException e) {
-                plugin.getLogger().severe("Chyba při ukládání worlds.yml: " + e.getMessage());
+                plugin.getLogger().severe("Error saving worlds.yml: " + e.getMessage());
             }
         });
     }
