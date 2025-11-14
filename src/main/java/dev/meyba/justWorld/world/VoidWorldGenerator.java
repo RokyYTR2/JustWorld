@@ -1,6 +1,7 @@
 package dev.meyba.justWorld.world;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
@@ -10,7 +11,17 @@ import java.util.Random;
 public class VoidWorldGenerator extends ChunkGenerator {
 
     @Override
-    public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {}
+    public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
+        // Generate small bedrock spawn platform at 0,0
+        if (chunkX == 0 && chunkZ == 0) {
+            // Create 5x5 bedrock platform at Y=64
+            for (int x = 0; x < 5; x++) {
+                for (int z = 0; z < 5; z++) {
+                    chunkData.setBlock(x, 64, z, Material.BEDROCK);
+                }
+            }
+        }
+    }
 
     @Override
     public void generateSurface(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {}
@@ -23,7 +34,8 @@ public class VoidWorldGenerator extends ChunkGenerator {
 
     @Override
     public Location getFixedSpawnLocation(World world, Random random) {
-        return new Location(world, 0, 64, 0);
+        // Spawn on top of the bedrock platform
+        return new Location(world, 2.5, 65, 2.5);
     }
 
     @Override
