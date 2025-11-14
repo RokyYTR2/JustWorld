@@ -12,14 +12,9 @@ public class VoidWorldGenerator extends ChunkGenerator {
 
     @Override
     public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
-        // Generate small bedrock spawn platform at 0,0
+        // Generate single bedrock block at spawn (0, 64, 0)
         if (chunkX == 0 && chunkZ == 0) {
-            // Create 5x5 bedrock platform at Y=64
-            for (int x = 0; x < 5; x++) {
-                for (int z = 0; z < 5; z++) {
-                    chunkData.setBlock(x, 64, z, Material.BEDROCK);
-                }
-            }
+            chunkData.setBlock(0, 64, 0, Material.BEDROCK);
         }
     }
 
@@ -34,8 +29,8 @@ public class VoidWorldGenerator extends ChunkGenerator {
 
     @Override
     public Location getFixedSpawnLocation(World world, Random random) {
-        // Spawn on top of the bedrock platform
-        return new Location(world, 2.5, 65, 2.5);
+        // Spawn on single bedrock block
+        return new Location(world, 0.5, 65, 0.5);
     }
 
     @Override

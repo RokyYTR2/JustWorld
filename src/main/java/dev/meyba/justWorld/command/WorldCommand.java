@@ -1,6 +1,7 @@
 package dev.meyba.justWorld.command;
 
 import dev.meyba.justWorld.JustWorld;
+import dev.meyba.justWorld.utils.MessageUtil;
 import dev.meyba.justWorld.world.WorldData;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -17,9 +18,11 @@ import java.util.stream.Collectors;
 
 public class WorldCommand implements CommandExecutor, TabCompleter {
     private final JustWorld plugin;
+    private final MessageUtil msg;
 
     public WorldCommand(JustWorld plugin) {
         this.plugin = plugin;
+        this.msg = plugin.getMessageUtil();
     }
 
     @Override
@@ -45,8 +48,8 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
 
     private void handleCreate(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /world create <name> [normal|nether|end|void|flat] [seed]");
-            sender.sendMessage(ChatColor.GRAY + "Generator types: normal (default), void (fastest!), flat (fast)");
+            msg.send(sender, "usage-create");
+            msg.send(sender, "generator-hint");
             return;
         }
 
@@ -63,7 +66,7 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
                 try {
                     generatorType = WorldData.GeneratorType.valueOf(type);
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage(ChatColor.RED + "Invalid generator type!");
+                    msg.send(sender, "invalid-environment");
                     return;
                 }
             } else {
@@ -76,7 +79,7 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
                         default -> throw new IllegalArgumentException("Invalid environment");
                     };
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage(ChatColor.RED + "Invalid type! Use: normal, nether, end, void, flat");
+                    msg.send(sender, "invalid-environment");
                     return;
                 }
             }
@@ -86,16 +89,18 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             try {
                 seed = Long.parseLong(args[3]);
             } catch (NumberFormatException e) {
-                sender.sendMessage(ChatColor.RED + "Invalid seed!");
+                msg.send(sender, "invalid-seed");
                 return;
             }
         }
 
-        String typeInfo = generatorType == WorldData.GeneratorType.VOID ? " (VOID - Ultra Fast!)" :
-                         generatorType == WorldData.GeneratorType.FLAT ? " (FLAT - Very Fast!)" : "";
-
-        sender.sendMessage(ChatColor.YELLOW + "Creating world " + ChatColor.WHITE + worldName +
-                          ChatColor.YELLOW + typeInfo + " asynchronously...");
+        // Send appropriate creation message based on generator type
+        String messageKey = switch (generatorType) {
+            case VOID -> "creating-void";
+            case FLAT -> "creating-flat";
+            default -> "creating-world";
+        };
+        msg.send(sender, messageKey, "{world}", worldName);
 
         WorldData worldData = WorldData.builder(worldName)
                 .environment(environment)
@@ -105,17 +110,19 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
 
         plugin.getWorldManager().createWorldAsync(worldData).thenAccept(result -> {
             if (result.isSuccess()) {
-                sender.sendMessage(ChatColor.GREEN + "World " + ChatColor.WHITE + worldName +
-                        ChatColor.GREEN + " created in " + ChatColor.GOLD + result.getFormattedTime() + ChatColor.GREEN + "!");
+                String message = msg.getMessage("world-created")
+                        .replace("{world}", worldName)
+                        .replace("{time}", result.getFormattedTime());
+                sender.sendMessage(msg.getPrefix() + message);
             } else {
-                sender.sendMessage(ChatColor.RED + "Failed to create world!");
+                msg.send(sender, "world-create-failed");
             }
         });
     }
 
     private void handleDelete(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /world delete <name>");
+            msg.send(sender, "usage-delete");
             return;
         }
 
@@ -123,96 +130,99 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         World world = plugin.getWorldManager().getWorld(worldName);
 
         if (world == null) {
-            sender.sendMessage(ChatColor.RED + "World " + worldName + " doesn't exist!");
+            msg.send(sender, "world-not-found", "{world}", worldName);
             return;
         }
 
         if (world.getPlayers().size() > 0 && args.length < 3) {
-            sender.sendMessage(ChatColor.RED + "There are players in this world! Use /world delete <name> confirm");
+            msg.send(sender, "world-has-players", "{world}", worldName);
             return;
         }
 
-        sender.sendMessage(ChatColor.YELLOW + "Deleting world " + ChatColor.WHITE + worldName + ChatColor.YELLOW + " asynchronously...");
+        msg.send(sender, "deleting-world", "{world}", worldName);
 
         plugin.getWorldManager().deleteWorldAsync(worldName).thenAccept(success -> {
             if (success) {
-                sender.sendMessage(ChatColor.GREEN + "World " + ChatColor.WHITE + worldName + ChatColor.GREEN + " deleted successfully!");
+                msg.send(sender, "world-deleted", "{world}", worldName);
             } else {
-                sender.sendMessage(ChatColor.RED + "Failed to delete world!");
+                msg.send(sender, "world-delete-failed");
             }
         });
     }
 
     private void handleLoad(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /world load <name>");
+            msg.send(sender, "usage-load");
             return;
         }
 
         String worldName = args[1];
-        sender.sendMessage(ChatColor.YELLOW + "Loading world " + ChatColor.WHITE + worldName + ChatColor.YELLOW + " asynchronously...");
+        msg.send(sender, "loading-world", "{world}", worldName);
 
         plugin.getWorldManager().loadWorldAsync(worldName).thenAccept(world -> {
             if (world != null) {
-                sender.sendMessage(ChatColor.GREEN + "World " + ChatColor.WHITE + worldName + ChatColor.GREEN + " loaded successfully!");
+                msg.send(sender, "world-loaded", "{world}", worldName);
             } else {
-                sender.sendMessage(ChatColor.RED + "World " + worldName + " doesn't exist or failed to load!");
+                msg.send(sender, "world-load-failed", "{world}", worldName);
             }
         });
     }
 
     private void handleUnload(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /world unload <name>");
+            msg.send(sender, "usage-unload");
             return;
         }
 
         String worldName = args[1];
-        sender.sendMessage(ChatColor.YELLOW + "Unloading world " + ChatColor.WHITE + worldName + ChatColor.YELLOW + " asynchronously...");
+        msg.send(sender, "unloading-world", "{world}", worldName);
 
         plugin.getWorldManager().unloadWorldAsync(worldName).thenAccept(success -> {
             if (success) {
-                sender.sendMessage(ChatColor.GREEN + "World " + ChatColor.WHITE + worldName + ChatColor.GREEN + " unloaded successfully!");
+                msg.send(sender, "world-unloaded", "{world}", worldName);
             } else {
-                sender.sendMessage(ChatColor.RED + "Failed to unload world!");
+                msg.send(sender, "world-unload-failed");
             }
         });
     }
 
     private void handleTeleport(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            msg.send(sender, "player-only");
             return;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /world tp <name>");
+            msg.send(sender, "usage-tp");
             return;
         }
 
         String worldName = args[1];
 
+        // OPTIMIZATION: Check if world is already loaded (no async needed)
         World world = plugin.getWorldManager().getWorld(worldName);
 
         if (world != null) {
+            // World already loaded - instant teleport!
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 player.teleport(world.getSpawnLocation());
-                player.sendMessage(ChatColor.GREEN + "Teleported to " + ChatColor.WHITE + worldName + ChatColor.GREEN + "!");
+                msg.send(player, "teleported", "{world}", worldName);
             });
             return;
         }
 
-        player.sendMessage(ChatColor.YELLOW + "Loading world " + worldName + "...");
+        // World not loaded - load it asynchronously
+        msg.send(player, "loading-world", "{world}", worldName);
 
         plugin.getWorldManager().loadWorldAsync(worldName).thenAccept(loadedWorld -> {
             if (loadedWorld == null) {
-                player.sendMessage(ChatColor.RED + "World " + worldName + " doesn't exist!");
+                msg.send(player, "world-not-found", "{world}", worldName);
                 return;
             }
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 player.teleport(loadedWorld.getSpawnLocation());
-                player.sendMessage(ChatColor.GREEN + "Teleported to " + ChatColor.WHITE + worldName + ChatColor.GREEN + "!");
+                msg.send(player, "teleported", "{world}", worldName);
             });
         });
     }
@@ -220,17 +230,17 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
     private void handleList(CommandSender sender) {
         List<World> worlds = plugin.getWorldManager().getAllWorlds();
 
-        sender.sendMessage(ChatColor.GOLD + "=== Loaded Worlds (" + worlds.size() + ") ===");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GOLD + "ʟᴏᴀᴅᴇᴅ ᴡᴏʀʟᴅꜱ (" + worlds.size() + ")");
         worlds.forEach(world -> {
-            sender.sendMessage(ChatColor.YELLOW + "- " + world.getName() +
+            sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "- " + world.getName() +
                     ChatColor.GRAY + " (" + world.getEnvironment() + ", " +
-                    world.getPlayers().size() + " players)");
+                    world.getPlayers().size() + " ᴘʟᴀʏᴇʀꜱ)");
         });
     }
 
     private void handleInfo(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /world info <name>");
+            msg.send(sender, "usage-info");
             return;
         }
 
@@ -238,32 +248,32 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         World world = plugin.getWorldManager().getWorld(worldName);
 
         if (world == null) {
-            sender.sendMessage(ChatColor.RED + "World " + worldName + " is not loaded!");
+            msg.send(sender, "world-not-loaded", "{world}", worldName);
             return;
         }
 
-        sender.sendMessage(ChatColor.GOLD + "=== World Info: " + worldName + " ===");
-        sender.sendMessage(ChatColor.YELLOW + "Environment: " + ChatColor.WHITE + world.getEnvironment());
-        sender.sendMessage(ChatColor.YELLOW + "Seed: " + ChatColor.WHITE + world.getSeed());
-        sender.sendMessage(ChatColor.YELLOW + "Players: " + ChatColor.WHITE + world.getPlayers().size());
-        sender.sendMessage(ChatColor.YELLOW + "PVP: " + ChatColor.WHITE + world.getPVP());
-        sender.sendMessage(ChatColor.YELLOW + "Difficulty: " + ChatColor.WHITE + world.getDifficulty());
-        sender.sendMessage(ChatColor.YELLOW + "Spawn: " + ChatColor.WHITE +
+        sender.sendMessage(msg.getPrefix() + ChatColor.GOLD + "ᴡᴏʀʟᴅ ɪɴꜰᴏ: " + ChatColor.WHITE + worldName);
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "ᴇɴᴠɪʀᴏɴᴍᴇɴᴛ: " + ChatColor.WHITE + world.getEnvironment());
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "ꜱᴇᴇᴅ: " + ChatColor.WHITE + world.getSeed());
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "ᴘʟᴀʏᴇʀꜱ: " + ChatColor.WHITE + world.getPlayers().size());
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "ᴘᴠᴘ: " + ChatColor.WHITE + world.getPVP());
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "ᴅɪꜰꜰɪᴄᴜʟᴛʏ: " + ChatColor.WHITE + world.getDifficulty());
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "ꜱᴘᴀᴡɴ: " + ChatColor.WHITE +
                 world.getSpawnLocation().getBlockX() + ", " +
                 world.getSpawnLocation().getBlockY() + ", " +
                 world.getSpawnLocation().getBlockZ());
-        sender.sendMessage(ChatColor.YELLOW + "Keep Spawn Loaded: " + ChatColor.WHITE + world.getKeepSpawnInMemory());
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "ᴋᴇᴇᴘ ꜱᴘᴀᴡɴ ʟᴏᴀᴅᴇᴅ: " + ChatColor.WHITE + world.getKeepSpawnInMemory());
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "=== JustWorld Commands ===");
-        sender.sendMessage(ChatColor.YELLOW + "/world create <name> [type] [seed]" + ChatColor.GRAY + " - Create a new world");
-        sender.sendMessage(ChatColor.YELLOW + "/world delete <name>" + ChatColor.GRAY + " - Delete a world");
-        sender.sendMessage(ChatColor.YELLOW + "/world load <name>" + ChatColor.GRAY + " - Load a world");
-        sender.sendMessage(ChatColor.YELLOW + "/world unload <name>" + ChatColor.GRAY + " - Unload a world");
-        sender.sendMessage(ChatColor.YELLOW + "/world tp <name>" + ChatColor.GRAY + " - Teleport to a world");
-        sender.sendMessage(ChatColor.YELLOW + "/world list" + ChatColor.GRAY + " - List all worlds");
-        sender.sendMessage(ChatColor.YELLOW + "/world info <name>" + ChatColor.GRAY + " - View world info");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GOLD + ChatColor.BOLD + "ᴊᴜꜱᴛᴡᴏʀʟᴅ ᴄᴏᴍᴍᴀɴᴅꜱ");
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world create <name> [type] [seed]" + ChatColor.GRAY + " - ᴄʀᴇᴀᴛᴇ ᴀ ɴᴇᴡ ᴡᴏʀʟᴅ");
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world delete <name>" + ChatColor.GRAY + " - ᴅᴇʟᴇᴛᴇ ᴀ ᴡᴏʀʟᴅ");
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world load <name>" + ChatColor.GRAY + " - ʟᴏᴀᴅ ᴀ ᴡᴏʀʟᴅ");
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world unload <name>" + ChatColor.GRAY + " - ᴜɴʟᴏᴀᴅ ᴀ ᴡᴏʀʟᴅ");
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world tp <name>" + ChatColor.GRAY + " - ᴛᴇʟᴇᴘᴏʀᴛ ᴛᴏ ᴀ ᴡᴏʀʟᴅ");
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world list" + ChatColor.GRAY + " - ʟɪꜱᴛ ᴀʟʟ ᴡᴏʀʟᴅꜱ");
+        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world info <name>" + ChatColor.GRAY + " - ᴠɪᴇᴡ ᴡᴏʀʟᴅ ɪɴꜰᴏ");
     }
 
     @Override

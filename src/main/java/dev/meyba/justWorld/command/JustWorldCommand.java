@@ -63,11 +63,11 @@ public class JustWorldCommand implements CommandExecutor {
     }
 
     private void handleReload(CommandSender sender) {
-        sender.sendMessage(ChatColor.YELLOW + "Reloading JustWorld configuration...");
-
         try {
             plugin.reloadConfig();
-            sender.sendMessage(ChatColor.GREEN + "Configuration reloaded successfully!");
+            String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix"));
+            String message = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.config-reloaded"));
+            sender.sendMessage(prefix + message);
         } catch (Exception e) {
             sender.sendMessage(ChatColor.RED + "Error reloading config: " + e.getMessage());
         }

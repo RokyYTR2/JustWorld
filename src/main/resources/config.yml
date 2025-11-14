@@ -1,7 +1,19 @@
+# =======================
 # JustWorld Configuration
-# Highly optimized async world management plugin
+# Ultra-fast async world management
+# =======================
 
-# Plugin settings
+# =======================
+# Prefix
+# =======================
+# Prefix used for all plugin messages
+# Supports hex colors using &x format
+# =======================
+prefix: "&x&5&A&9&E&F&F&lᴊ&x&5&C&A&0&F&F&lᴜ&x&5&E&A&2&F&F&lꜱ&x&6&0&A&4&F&F&lᴛ&x&6&2&A&6&F&F&lᴡ&x&6&4&A&8&F&F&lᴏ&x&6&6&A&A&F&F&lʀ&x&6&8&A&C&F&F&lʟ&x&6&A&A&E&F&F&lᴅ &8» &f"
+
+# =======================
+# Plugin Settings
+# =======================
 settings:
   # Enable debug messages
   debug: false
@@ -12,7 +24,11 @@ settings:
   # Enable async world operations (highly recommended for performance)
   async-operations: true
 
-# Default world settings (used when creating new worlds)
+# =======================
+# Default World Settings
+# =======================
+# Used when creating new worlds
+# =======================
 defaults:
   environment: NORMAL
   world-type: NORMAL
@@ -26,7 +42,9 @@ defaults:
   auto-load: true
   difficulty: NORMAL
 
-# Performance optimizations
+# =======================
+# Performance Optimizations
+# =======================
 performance:
   # Show world creation time in chat
   show-creation-time: true
@@ -39,13 +57,55 @@ performance:
 # - VOID: Empty void world (~50-200ms) - Perfect for lobbies/arenas!
 # - FLAT: Simple flat world (~100-400ms) - Great for building/minigames!
 
+# =======================
 # Messages
+# =======================
+# All messages support color codes (&a, &c, etc.) and hex colors
+# Use {world} for world name placeholder
+# =======================
 messages:
-  prefix: "&6[JustWorld]&r "
-  world-created: "&aWorld {world} has been created!"
-  world-deleted: "&cWorld {world} has been deleted!"
-  world-loaded: "&aWorld {world} has been loaded!"
-  world-unloaded: "&eWorld {world} has been unloaded!"
-  teleported: "&aYou have been teleported to {world}!"
-  world-not-found: "&cWorld {world} doesn't exist!"
-  no-permission: "&cYou don't have permission to do that!"
+  # World creation messages
+  creating-world: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+  creating-void: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ᴠᴏɪᴅ - ᴜʟᴛʀᴀ ꜰᴀꜱᴛ!)&e..."
+  creating-flat: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ꜰʟᴀᴛ - ᴠᴇʀʏ ꜰᴀꜱᴛ!)&e..."
+  world-created: "&aᴡᴏʀʟᴅ &f{world} &aᴄʀᴇᴀᴛᴇᴅ ɪɴ &6{time}&a!"
+  world-create-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴄʀᴇᴀᴛᴇ ᴡᴏʀʟᴅ!"
+
+  # World deletion messages
+  deleting-world: "&eᴅᴇʟᴇᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+  world-deleted: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴇʟᴇᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+  world-delete-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴅᴇʟᴇᴛᴇ ᴡᴏʀʟᴅ!"
+  world-has-players: "&cᴛʜᴇʀᴇ ᴀʀᴇ ᴘʟᴀʏᴇʀꜱ ɪɴ ᴛʜɪꜱ ᴡᴏʀʟᴅ! ᴜꜱᴇ &f/world delete {world} confirm"
+
+  # World loading messages
+  loading-world: "&eʟᴏᴀᴅɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+  world-loaded: "&aᴡᴏʀʟᴅ &f{world} &aʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+  world-load-failed: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴏᴇꜱɴ'ᴛ ᴇxɪꜱᴛ ᴏʀ ꜰᴀɪʟᴇᴅ ᴛᴏ ʟᴏᴀᴅ!"
+
+  # World unloading messages
+  unloading-world: "&eᴜɴʟᴏᴀᴅɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+  world-unloaded: "&aᴡᴏʀʟᴅ &f{world} &aᴜɴʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+  world-unload-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴜɴʟᴏᴀᴅ ᴡᴏʀʟᴅ!"
+
+  # Teleportation messages
+  teleported: "&aᴛᴇʟᴇᴘᴏʀᴛᴇᴅ ᴛᴏ &f{world}&a!"
+
+  # Error messages
+  world-not-found: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴏᴇꜱɴ'ᴛ ᴇxɪꜱᴛ!"
+  world-not-loaded: "&cᴡᴏʀʟᴅ &f{world} &cɪꜱ ɴᴏᴛ ʟᴏᴀᴅᴇᴅ!"
+  no-permission: "&cʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪꜱꜱɪᴏɴ ᴛᴏ ᴅᴏ ᴛʜᴀᴛ!"
+  player-only: "&cᴏɴʟʏ ᴘʟᴀʏᴇʀꜱ ᴄᴀɴ ᴜꜱᴇ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ!"
+
+  # Usage messages
+  usage-create: "&cᴜꜱᴀɢᴇ: &f/world create <name> [normal|nether|end|void|flat] [seed]"
+  usage-delete: "&cᴜꜱᴀɢᴇ: &f/world delete <name>"
+  usage-load: "&cᴜꜱᴀɢᴇ: &f/world load <name>"
+  usage-unload: "&cᴜꜱᴀɢᴇ: &f/world unload <name>"
+  usage-tp: "&cᴜꜱᴀɢᴇ: &f/world tp <name>"
+  usage-info: "&cᴜꜱᴀɢᴇ: &f/world info <name>"
+
+  # Other messages
+  invalid-environment: "&cɪɴᴠᴀʟɪᴅ ᴛʏᴘᴇ! ᴜꜱᴇ: &fnormal, nether, end, void, flat"
+  invalid-seed: "&cɪɴᴠᴀʟɪᴅ ꜱᴇᴇᴅ!"
+  config-reloaded: "&aᴄᴏɴꜰɪɢᴜʀᴀᴛɪᴏɴ ʀᴇʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+  generator-hint: "&7ɢᴇɴᴇʀᴀᴛᴏʀ ᴛʏᴘᴇꜱ: &fnormal &7(ᴅᴇꜰᴀᴜʟᴛ), &fvoid &7(ꜰᴀꜱᴛᴇꜱᴛ!), &fflat &7(ꜰᴀꜱᴛ)"
