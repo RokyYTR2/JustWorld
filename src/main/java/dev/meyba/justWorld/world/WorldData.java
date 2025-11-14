@@ -20,9 +20,9 @@ public record WorldData(
 ) {
 
     public enum GeneratorType {
-        DEFAULT,  // Standard Minecraft generation
-        VOID,     // Empty void world (fastest)
-        FLAT      // Simple flat world (very fast)
+        DEFAULT,
+        VOID,
+        FLAT
     }
 
     public static WorldData fromWorld(World world) {
@@ -47,11 +47,9 @@ public record WorldData(
                 .generateStructures(generateStructures)
                 .seed(seed);
 
-        // Apply custom generator for maximum speed
         switch (generatorType) {
             case VOID -> creator.generator(new VoidWorldGenerator());
             case FLAT -> creator.generator(new FlatWorldGenerator());
-            // DEFAULT uses vanilla generation
         }
 
         return creator;

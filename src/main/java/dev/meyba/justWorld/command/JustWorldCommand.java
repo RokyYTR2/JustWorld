@@ -11,7 +11,6 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 
 public class JustWorldCommand implements CommandExecutor {
-
     private final JustWorld plugin;
 
     public JustWorldCommand(JustWorld plugin) {
@@ -97,7 +96,6 @@ public class JustWorldCommand implements CommandExecutor {
             Object recentTps = server.getClass().getField("recentTps").get(server);
             return ((double[]) recentTps)[0];
         } catch (Exception e) {
-            // Fallback - assume 20 TPS if we can't get it
             return 20.0;
         }
     }

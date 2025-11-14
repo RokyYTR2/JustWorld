@@ -58,7 +58,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         if (args.length >= 3) {
             String type = args[2].toUpperCase();
 
-            // Check if it's a generator type
             if (type.equals("VOID") || type.equals("FLAT")) {
                 try {
                     generatorType = WorldData.GeneratorType.valueOf(type);
@@ -67,7 +66,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
             } else {
-                // It's an environment type
                 try {
                     environment = World.Environment.valueOf(type);
                 } catch (IllegalArgumentException e) {
@@ -187,11 +185,9 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
 
         String worldName = args[1];
 
-        // OPTIMIZATION: Check if world is already loaded (no async needed)
         World world = plugin.getWorldManager().getWorld(worldName);
 
         if (world != null) {
-            // World already loaded - instant teleport!
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 player.teleport(world.getSpawnLocation());
                 player.sendMessage(ChatColor.GREEN + "Teleported to " + ChatColor.WHITE + worldName + ChatColor.GREEN + "!");
@@ -199,7 +195,6 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // World not loaded - load it asynchronously
         player.sendMessage(ChatColor.YELLOW + "Loading world " + worldName + "...");
 
         plugin.getWorldManager().loadWorldAsync(worldName).thenAccept(loadedWorld -> {

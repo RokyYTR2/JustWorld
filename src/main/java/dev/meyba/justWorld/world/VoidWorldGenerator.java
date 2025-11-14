@@ -1,44 +1,28 @@
 package dev.meyba.justWorld.world;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
-/**
- * Ultra-fast void world generator
- * Creates completely empty worlds in milliseconds
- */
 public class VoidWorldGenerator extends ChunkGenerator {
 
     @Override
-    public void generateNoise(@NotNull WorldInfo worldInfo, @NotNull Random random, int chunkX, int chunkZ, @NotNull ChunkData chunkData) {
-        // Completely empty - no blocks generated
-        // This is the fastest possible generator
-    }
+    public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {}
 
     @Override
-    public void generateSurface(@NotNull WorldInfo worldInfo, @NotNull Random random, int chunkX, int chunkZ, @NotNull ChunkData chunkData) {
-        // No surface generation
-    }
+    public void generateSurface(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {}
 
     @Override
-    public void generateBedrock(@NotNull WorldInfo worldInfo, @NotNull Random random, int chunkX, int chunkZ, @NotNull ChunkData chunkData) {
-        // No bedrock generation
-    }
+    public void generateBedrock(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {}
 
     @Override
-    public void generateCaves(@NotNull WorldInfo worldInfo, @NotNull Random random, int chunkX, int chunkZ, @NotNull ChunkData chunkData) {
-        // No caves
-    }
+    public void generateCaves(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {}
 
     @Override
-    public Location getFixedSpawnLocation(@NotNull World world, @NotNull Random random) {
-        // Spawn at 0, 64, 0
+    public Location getFixedSpawnLocation(World world, Random random) {
         return new Location(world, 0, 64, 0);
     }
 
