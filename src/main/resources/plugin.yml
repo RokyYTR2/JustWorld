@@ -2,9 +2,8 @@ name: JustWorld
 version: '0.0.1'
 main: dev.meyba.justWorld.JustWorld
 api-version: '1.21'
-authors: [ Meyba._. Jezevcik20 ]
-description: Highly optimized async world management plugin
-
+authors: [ Meyba._., Jezevcik20 ]
+description: Just a world plugin.
 commands:
   world:
     description: Main world management command
@@ -18,7 +17,6 @@ commands:
     aliases: [jworld]
     permission: justworld.admin
     permission-message: "You don't have permission to use this command!"
-
 permissions:
   justworld.admin:
     description: Access to all JustWorld commands
