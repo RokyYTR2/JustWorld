@@ -16,9 +16,9 @@ public final class JustWorld extends JavaPlugin {
 
         saveDefaultConfig();
 
-        this.messageUtil = new MessageUtil(this);
+        messageUtil = new MessageUtil(this);
 
-        this.worldManager = new WorldManager(this);
+        worldManager = new WorldManager(this);
         getLogger().info("WorldManager initialized");
 
         WorldCommand worldCommand = new WorldCommand(this);
