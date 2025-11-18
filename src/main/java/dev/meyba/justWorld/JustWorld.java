@@ -3,6 +3,7 @@ package dev.meyba.justWorld;
 import dev.meyba.justWorld.command.JustWorldCommand;
 import dev.meyba.justWorld.command.WorldCommand;
 import dev.meyba.justWorld.utils.MessageUtil;
+import dev.meyba.justWorld.utils.VersionChecker;
 import dev.meyba.justWorld.world.WorldManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,6 +30,8 @@ public final class JustWorld extends JavaPlugin {
         getCommand("justworld").setExecutor(justWorldCommand);
 
         getLogger().info("Commands registered");
+
+        new VersionChecker(this, "RokyYTR2", "JustWorld").checkForUpdates();
 
         worldManager.loadAllWorldsAsync().thenRun(() -> {
             long loadTime = System.currentTimeMillis() - startTime;
