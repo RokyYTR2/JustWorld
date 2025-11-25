@@ -1,7 +1,7 @@
 package dev.meyba.justWorld.command;
 
 import dev.meyba.justWorld.JustWorld;
-import dev.meyba.justWorld.utils.MessageUtil;
+import dev.meyba.justWorld.utils.ChatUtil;
 import dev.meyba.justWorld.world.WorldData;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class WorldCommand implements CommandExecutor, TabCompleter {
     private final JustWorld plugin;
-    private final MessageUtil msg;
+    private final ChatUtil msg;
 
     public WorldCommand(JustWorld plugin) {
         this.plugin = plugin;

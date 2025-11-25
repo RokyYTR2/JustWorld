@@ -2,14 +2,14 @@ package dev.meyba.justWorld;
 
 import dev.meyba.justWorld.command.JustWorldCommand;
 import dev.meyba.justWorld.command.WorldCommand;
-import dev.meyba.justWorld.utils.MessageUtil;
+import dev.meyba.justWorld.utils.ChatUtil;
 import dev.meyba.justWorld.utils.VersionChecker;
 import dev.meyba.justWorld.world.WorldManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class JustWorld extends JavaPlugin {
     private WorldManager worldManager;
-    private MessageUtil messageUtil;
+    private ChatUtil chatUtil;
 
     @Override
     public void onEnable() {
@@ -17,7 +17,7 @@ public final class JustWorld extends JavaPlugin {
 
         saveDefaultConfig();
 
-        messageUtil = new MessageUtil(this);
+        chatUtil = new ChatUtil(this);
 
         worldManager = new WorldManager(this);
         getLogger().info("WorldManager initialized");
@@ -48,7 +48,7 @@ public final class JustWorld extends JavaPlugin {
         return worldManager;
     }
 
-    public MessageUtil getMessageUtil() {
-        return messageUtil;
+    public ChatUtil getMessageUtil() {
+        return chatUtil;
     }
 }

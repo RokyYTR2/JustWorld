@@ -4,10 +4,10 @@ import dev.meyba.justWorld.JustWorld;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-public class MessageUtil {
+public class ChatUtil {
     private final JustWorld plugin;
 
-    public MessageUtil(JustWorld plugin) {
+    public ChatUtil(JustWorld plugin) {
         this.plugin = plugin;
     }
 
