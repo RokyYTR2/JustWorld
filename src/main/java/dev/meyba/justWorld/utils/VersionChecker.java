@@ -65,7 +65,6 @@ public class VersionChecker {
                 while ((line = reader.readLine()) != null) {
                     if (line.startsWith("version:")) {
                         String version = line.substring(line.indexOf(":") + 1).trim();
-                        // Remove quotes or apostrophes if present
                         version = version.replaceAll("['\"]", "");
 
                         reader.close();

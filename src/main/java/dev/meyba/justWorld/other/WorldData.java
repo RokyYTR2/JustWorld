@@ -1,5 +1,7 @@
-package dev.meyba.justWorld.world;
+package dev.meyba.justWorld.other;
 
+import dev.meyba.justWorld.generators.FlatWorldGenerator;
+import dev.meyba.justWorld.generators.VoidWorldGenerator;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;

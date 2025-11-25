@@ -3,7 +3,7 @@
 # =======================
 # Prefix used for all plugin messages
 # =======================
-prefix: "&x&5&A&9&E&F&F&lᴊ&x&5&C&A&0&F&F&lᴜ&x&5&E&A&2&F&F&lꜱ&x&6&0&A&4&F&F&lᴛ&x&6&2&A&6&F&F&lᴡ&x&6&4&A&8&F&F&lᴏ&x&6&6&A&A&F&F&lʀ&x&6&8&A&C&F&F&lʟ&x&6&A&A&E&F&F&lᴅ &8» &f"
+prefix: "§x§A§2§8§B§5§9§lᴊ§x§A§3§8§C§5§9§lᴜ§x§A§4§8§D§5§A§lꜱ§x§A§5§8§E§5§B§lᴛ§x§A§6§8§F§5§C§lᴡ§x§A§7§9§0§5§D§lᴏ§x§A§8§9§1§5§E§lʀ§x§A§9§9§2§5§F§lʟ§x§A§A§9§3§6§0§lᴅ §8» §f"
 
 # =======================
 # Plugin Settings
@@ -60,8 +60,8 @@ performance:
 messages:
   # World creation messages
   creating-world: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
-  creating-void: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ᴠᴏɪᴅ - ᴜʟᴛʀᴀ ꜰᴀꜱᴛ!)&e..."
-  creating-flat: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ꜰʟᴀᴛ - ᴠᴇʀʏ ꜰᴀꜱᴛ!)&e..."
+  creating-void: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ᴠᴏɪᴅ)&e..."
+  creating-flat: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ꜰʟᴀᴛ)&e..."
   world-created: "&aᴡᴏʀʟᴅ &f{world} &aᴄʀᴇᴀᴛᴇᴅ ɪɴ &6{time}&a!"
   world-create-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴄʀᴇᴀᴛᴇ ᴡᴏʀʟᴅ!"
 
@@ -98,8 +98,23 @@ messages:
   usage-tp: "&cᴜꜱᴀɢᴇ: &f/world tp <name>"
   usage-info: "&cᴜꜱᴀɢᴇ: &f/world info <name>"
 
+  # Clone messages
+  cloning-world: "&eᴄʟᴏɴɪɴɢ ᴡᴏʀʟᴅ &f{source} &eᴛᴏ &f{target}&e..."
+  world-cloned: "&aᴡᴏʀʟᴅ &f{source} &aᴄʟᴏɴᴇᴅ ᴛᴏ &f{target}&a!"
+  world-clone-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴄʟᴏɴᴇ ᴡᴏʀʟᴅ!"
+  usage-clone: "&cᴜꜱᴀɢᴇ: &f/world clone <source> <newname>"
+
+  # Spawn messages
+  spawn-set: "&aꜱᴘᴀᴡɴ ꜱᴇᴛ ꜰᴏʀ ᴡᴏʀʟᴅ &f{world}&a!"
+
+  # Import messages
+  importing-world: "&eɪᴍᴘᴏʀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+  world-imported: "&aᴡᴏʀʟᴅ &f{world} &aɪᴍᴘᴏʀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+  world-import-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ɪᴍᴘᴏʀᴛ ᴡᴏʀʟᴅ &f{world}&c!"
+  usage-import: "&cᴜꜱᴀɢᴇ: &f/world import <name>"
+
   # Other messages
   invalid-environment: "&cɪɴᴠᴀʟɪᴅ ᴛʏᴘᴇ! ᴜꜱᴇ: &fnormal, nether, end, void, flat"
   invalid-seed: "&cɪɴᴠᴀʟɪᴅ ꜱᴇᴇᴅ!"
   config-reloaded: "&aᴄᴏɴꜰɪɢᴜʀᴀᴛɪᴏɴ ʀᴇʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
-  generator-hint: "&7ɢᴇɴᴇʀᴀᴛᴏʀ ᴛʏᴘᴇꜱ: &fnormal &7(ᴅᴇꜰᴀᴜʟᴛ), &fvoid &7(ꜰᴀꜱᴛᴇꜱᴛ!), &fflat &7(ꜰᴀꜱᴛ)"
+  generator-hint: "&7ɢᴇɴᴇʀᴀᴛᴏʀ ᴛʏᴘᴇꜱ: &fnormal &7(ᴅᴇꜰᴀᴜʟᴛ), &fvoid, &fflat"

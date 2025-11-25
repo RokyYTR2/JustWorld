@@ -1,4 +1,4 @@
-package dev.meyba.justWorld.world;
+package dev.meyba.justWorld.generators;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

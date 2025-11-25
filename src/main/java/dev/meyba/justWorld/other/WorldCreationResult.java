@@ -1,4 +1,4 @@
-package dev.meyba.justWorld.world;
+package dev.meyba.justWorld.other;
 
 import org.bukkit.World;
 

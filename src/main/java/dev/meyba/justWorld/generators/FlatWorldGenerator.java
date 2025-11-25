@@ -1,4 +1,4 @@
-package dev.meyba.justWorld.world;
+package dev.meyba.justWorld.generators;
 
 import org.bukkit.Material;
 import org.bukkit.generator.ChunkGenerator;
