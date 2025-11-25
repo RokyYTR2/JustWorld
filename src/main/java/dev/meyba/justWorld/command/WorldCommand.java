@@ -260,14 +260,14 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(msg.getPrefix() + ChatColor.GOLD + ChatColor.BOLD + "ᴊᴜꜱᴛᴡᴏʀʟᴅ ᴄᴏᴍᴍᴀɴᴅꜱ");
-        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world create <name> [type] [seed]" + ChatColor.GRAY + " - ᴄʀᴇᴀᴛᴇ ᴀ ɴᴇᴡ ᴡᴏʀʟᴅ");
-        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world delete <name>" + ChatColor.GRAY + " - ᴅᴇʟᴇᴛᴇ ᴀ ᴡᴏʀʟᴅ");
-        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world load <name>" + ChatColor.GRAY + " - ʟᴏᴀᴅ ᴀ ᴡᴏʀʟᴅ");
-        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world unload <name>" + ChatColor.GRAY + " - ᴜɴʟᴏᴀᴅ ᴀ ᴡᴏʀʟᴅ");
-        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world tp <name>" + ChatColor.GRAY + " - ᴛᴇʟᴇᴘᴏʀᴛ ᴛᴏ ᴀ ᴡᴏʀʟᴅ");
-        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world list" + ChatColor.GRAY + " - ʟɪꜱᴛ ᴀʟʟ ᴡᴏʀʟᴅꜱ");
-        sender.sendMessage(msg.getPrefix() + ChatColor.YELLOW + "/world info <name>" + ChatColor.GRAY + " - ᴠɪᴇᴡ ᴡᴏʀʟᴅ ɪɴꜰᴏ");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "ʜᴇʟᴘ ᴍᴇɴᴜ:");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world create <ɴᴀᴍᴇ> [ᴛʏᴘᴇ] [ꜱᴇᴇᴅ] - ᴄʀᴇᴀᴛᴇꜱ ᴀ ɴᴇᴡ ᴡᴏʀʟᴅ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world delete <ɴᴀᴍᴇ> - ᴅᴇʟᴇᴛᴇꜱ ᴀ ᴡᴏʀʟᴅ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world load <ɴᴀᴍᴇ> - ʟᴏᴀᴅꜱ ᴀ ᴡᴏʀʟᴅ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world unload <ɴᴀᴍᴇ> - ᴜɴʟᴏᴀᴅꜱ ᴀ ᴡᴏʀʟᴅ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world tp <ɴᴀᴍᴇ> - ᴛᴇʟᴇᴘᴏʀᴛꜱ ᴛᴏ ᴀ ᴡᴏʀʟᴅ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world list - ʟɪꜱᴛꜱ ᴀʟʟ ᴡᴏʀʟᴅꜱ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world info <ɴᴀᴍᴇ> - ᴠɪᴇᴡꜱ ᴡᴏʀʟᴅ ɪɴꜰᴏ.");
     }
 
     @Override
