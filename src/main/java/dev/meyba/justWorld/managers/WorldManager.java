@@ -11,25 +11,42 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.Set;
+import java.util.concurrent.*;
+import java.util.stream.Stream;
 
 public class WorldManager {
     private final JustWorld plugin;
     private final Map<String, WorldData> worldDataMap;
     private final File worldsFile;
+    private final ExecutorService fileOperationExecutor;
+
+    private static final Set<String> SKIP_FILES = Set.of("uid.dat", "session.lock");
+    private static final int FILE_OP_THREADS = Math.max(2, Runtime.getRuntime().availableProcessors());
 
     public WorldManager(JustWorld plugin) {
         this.plugin = plugin;
         this.worldDataMap = new ConcurrentHashMap<>();
         this.worldsFile = new File(plugin.getDataFolder(), "worlds.yml");
+        this.fileOperationExecutor = Executors.newWorkStealingPool(FILE_OP_THREADS);
         loadWorldsData();
+    }
+
+    public void shutdown() {
+        fileOperationExecutor.shutdown();
+        try {
+            if (!fileOperationExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+                fileOperationExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            fileOperationExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     public CompletableFuture<WorldCreationResult> createWorld(WorldData worldData) {
@@ -197,25 +214,39 @@ public class WorldManager {
     }
 
     private void copyDirectory(File source, File target) throws IOException {
-        if (!target.exists()) {
-            target.mkdirs();
+        Path sourcePath = source.toPath();
+        Path targetPath = target.toPath();
+
+        List<CompletableFuture<Void>> copyTasks = new ArrayList<>();
+
+        try (Stream<Path> walk = Files.walk(sourcePath)) {
+            walk.forEach(src -> {
+                if (SKIP_FILES.contains(src.getFileName().toString())) {
+                    return;
+                }
+
+                Path dest = targetPath.resolve(sourcePath.relativize(src));
+
+                if (Files.isDirectory(src)) {
+                    try {
+                        Files.createDirectories(dest);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to create directory: " + dest, e);
+                    }
+                } else {
+                    CompletableFuture<Void> task = CompletableFuture.runAsync(() -> {
+                        try {
+                            Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to copy file: " + src, e);
+                        }
+                    }, fileOperationExecutor);
+                    copyTasks.add(task);
+                }
+            });
         }
 
-        File[] files = source.listFiles();
-        if (files == null) return;
-
-        for (File file : files) {
-            if (file.getName().equals("uid.dat") || file.getName().equals("session.lock")) {
-                continue;
-            }
-
-            File targetFile = new File(target, file.getName());
-            if (file.isDirectory()) {
-                copyDirectory(file, targetFile);
-            } else {
-                Files.copy(file.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            }
-        }
+        CompletableFuture.allOf(copyTasks.toArray(new CompletableFuture[0])).join();
     }
 
     public CompletableFuture<Boolean> importWorld(String worldName) {
@@ -368,16 +399,45 @@ public class WorldManager {
     private boolean deleteDirectory(File directory) {
         if (!directory.exists()) return true;
 
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDirectory(file);
-                } else {
-                    file.delete();
+        Path dirPath = directory.toPath();
+
+        try {
+            List<Path> filesToDelete = new ArrayList<>();
+            List<Path> dirsToDelete = new ArrayList<>();
+
+            Files.walkFileTree(dirPath, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    filesToDelete.add(file);
+                    return FileVisitResult.CONTINUE;
                 }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                    dirsToDelete.add(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+
+            List<CompletableFuture<Void>> deleteTasks = filesToDelete.stream()
+                    .map(file -> CompletableFuture.runAsync(() -> {
+                        try {
+                            Files.deleteIfExists(file);
+                        } catch (IOException ignored) {
+                        }
+                    }, fileOperationExecutor))
+                    .toList();
+
+            CompletableFuture.allOf(deleteTasks.toArray(new CompletableFuture[0])).join();
+
+            for (Path dir : dirsToDelete) {
+                Files.deleteIfExists(dir);
             }
+
+            return true;
+        } catch (IOException e) {
+            plugin.getLogger().warning("Error deleting directory: " + e.getMessage());
+            return false;
         }
-        return directory.delete();
     }
 }

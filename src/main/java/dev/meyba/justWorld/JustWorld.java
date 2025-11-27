@@ -38,13 +38,16 @@ public final class JustWorld extends JavaPlugin {
 
         worldManager.loadAllWorlds().thenRun(() -> {
             long loadTime = System.currentTimeMillis() - startTime;
-            getLogger().info("JustWorld enabled in " + loadTime + "ms!");
+            getLogger().info("JustWorld has been enabled in " + loadTime + "ms!");
         });
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("JustWorld disabled!");
+        if (worldManager != null) {
+            worldManager.shutdown();
+        }
+        getLogger().info("JustWorld has been disabled!");
     }
 
     public WorldManager getWorldManager() {
