@@ -289,6 +289,67 @@ public class WorldManager {
         });
     }
 
+    public CompletableFuture<Boolean> renameWorld(String oldName, String newName) {
+        return CompletableFuture.supplyAsync(() -> {
+            File oldFolder = new File(Bukkit.getWorldContainer(), oldName);
+            File newFolder = new File(Bukkit.getWorldContainer(), newName);
+
+            if (!oldFolder.exists() || newFolder.exists()) {
+                return false;
+            }
+
+            try {
+                Boolean unloaded = Bukkit.getScheduler().callSyncMethod(plugin, () -> {
+                    World world = Bukkit.getWorld(oldName);
+                    if (world != null) {
+                        World spawnWorld = Bukkit.getWorlds().getFirst();
+                        world.getPlayers().forEach(player ->
+                                player.teleport(spawnWorld.getSpawnLocation())
+                        );
+                        world.save();
+                        return Bukkit.unloadWorld(world, true);
+                    }
+                    return true;
+                }).get();
+
+                if (!unloaded) {
+                    return false;
+                }
+
+                if (!oldFolder.renameTo(newFolder)) {
+                    copyDirectory(oldFolder, newFolder);
+                    deleteDirectory(oldFolder);
+                }
+
+                WorldData oldData = worldDataMap.remove(oldName);
+                if (oldData != null) {
+                    WorldData newData = WorldData.builder(newName)
+                            .environment(oldData.environment())
+                            .worldType(oldData.worldType())
+                            .generateStructures(oldData.generateStructures())
+                            .seed(oldData.seed())
+                            .pvpEnabled(oldData.pvpEnabled())
+                            .keepSpawnInMemory(oldData.keepSpawnInMemory())
+                            .autoLoad(oldData.autoLoad())
+                            .generatorType(oldData.generatorType())
+                            .build();
+                    worldDataMap.put(newName, newData);
+                }
+                saveWorldsDataAsync();
+
+                Bukkit.getScheduler().callSyncMethod(plugin, () -> {
+                    WorldCreator creator = new WorldCreator(newName);
+                    return creator.createWorld();
+                }).get();
+
+                return true;
+            } catch (Exception e) {
+                plugin.getLogger().severe("Error renaming world: " + e.getMessage());
+                return false;
+            }
+        });
+    }
+
     public List<String> getUnloadedWorlds() {
         List<String> unloaded = new ArrayList<>();
         File[] folders = Bukkit.getWorldContainer().listFiles();

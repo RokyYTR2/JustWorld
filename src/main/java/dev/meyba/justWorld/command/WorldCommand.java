@@ -47,6 +47,7 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             case "setspawn" -> handleSetSpawn(sender, args);
             case "clone" -> handleClone(sender, args);
             case "import" -> handleImport(sender, args);
+            case "rename" -> handleRename(sender, args);
             default -> sendHelp(sender);
         }
 
@@ -351,11 +352,44 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         });
     }
 
+    private void handleRename(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            msg.send(sender, "usage-rename");
+            return;
+        }
+
+        String oldName = args[1];
+        String newName = args[2];
+
+        World world = plugin.getWorldManager().getWorld(oldName);
+        if (world == null) {
+            msg.send(sender, "world-not-found", "{world}", oldName);
+            return;
+        }
+
+        String renamingMsg = msg.getMessage("renaming-world")
+                .replace("{old}", oldName)
+                .replace("{new}", newName);
+        sender.sendMessage(msg.getPrefix() + renamingMsg);
+
+        plugin.getWorldManager().renameWorld(oldName, newName).thenAccept(success -> {
+            if (success) {
+                String renamedMsg = msg.getMessage("world-renamed")
+                        .replace("{old}", oldName)
+                        .replace("{new}", newName);
+                sender.sendMessage(msg.getPrefix() + renamedMsg);
+            } else {
+                msg.send(sender, "world-rename-failed");
+            }
+        });
+    }
+
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "ʜᴇʟᴘ ᴍᴇɴᴜ:");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world create <ɴᴀᴍᴇ> [ᴛʏᴘᴇ] [ꜱᴇᴇᴅ] - ᴄʀᴇᴀᴛᴇꜱ ᴀ ɴᴇᴡ ᴡᴏʀʟᴅ.");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world delete <ɴᴀᴍᴇ> - ᴅᴇʟᴇᴛᴇꜱ ᴀ ᴡᴏʀʟᴅ.");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world clone <ꜱᴏᴜʀᴄᴇ> <ɴᴇᴡɴᴀᴍᴇ> - ᴄʟᴏɴᴇꜱ ᴀ ᴡᴏʀʟᴅ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world rename <ᴏʟᴅ> <ɴᴇᴡ> - ʀᴇɴᴀᴍᴇꜱ ᴀ ᴡᴏʀʟᴅ.");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world import <ɴᴀᴍᴇ> - ɪᴍᴘᴏʀᴛꜱ ᴀ ᴡᴏʀʟᴅ ꜰʀᴏᴍ ꜰᴏʟᴅᴇʀ.");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world load <ɴᴀᴍᴇ> - ʟᴏᴀᴅꜱ ᴀ ᴡᴏʀʟᴅ.");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world unload <ɴᴀᴍᴇ> - ᴜɴʟᴏᴀᴅꜱ ᴀ ᴡᴏʀʟᴅ.");
@@ -372,10 +406,10 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("create", "delete", "clone", "import", "load", "unload", "tp", "setspawn", "list", "gui", "info", "reload", "help"));
+            completions.addAll(Arrays.asList("create", "delete", "clone", "rename", "import", "load", "unload", "tp", "setspawn", "list", "gui", "info", "reload", "help"));
         } else if (args.length == 2) {
             switch (args[0].toLowerCase()) {
-                case "delete", "load", "unload", "tp", "info", "setspawn", "clone" ->
+                case "delete", "load", "unload", "tp", "info", "setspawn", "clone", "rename" ->
                         completions.addAll(plugin.getWorldManager().getAllWorlds().stream()
                                 .map(World::getName)
                                 .toList());

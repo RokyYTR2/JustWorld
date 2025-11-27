@@ -113,6 +113,12 @@ messages:
   world-import-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ɪᴍᴘᴏʀᴛ ᴡᴏʀʟᴅ &f{world}&c!"
   usage-import: "&cᴜꜱᴀɢᴇ: &f/world import <name>"
 
+  # Rename messages
+  renaming-world: "&eʀᴇɴᴀᴍɪɴɢ ᴡᴏʀʟᴅ &f{old} &eᴛᴏ &f{new}&e..."
+  world-renamed: "&aᴡᴏʀʟᴅ &f{old} &aʀᴇɴᴀᴍᴇᴅ ᴛᴏ &f{new}&a!"
+  world-rename-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ʀᴇɴᴀᴍᴇ ᴡᴏʀʟᴅ!"
+  usage-rename: "&cᴜꜱᴀɢᴇ: &f/world rename <old> <new>"
+
   # Other messages
   invalid-environment: "&cɪɴᴠᴀʟɪᴅ ᴛʏᴘᴇ! ᴜꜱᴇ: &fnormal, nether, end, void, flat"
   invalid-seed: "&cɪɴᴠᴀʟɪᴅ ꜱᴇᴇᴅ!"
