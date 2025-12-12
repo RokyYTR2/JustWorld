@@ -1,6 +1,8 @@
 package dev.meyba.justWorld.command;
 
 import dev.meyba.justWorld.JustWorld;
+import dev.meyba.justWorld.managers.ConfirmationManager;
+import dev.meyba.justWorld.managers.PortalManager;
 import dev.meyba.justWorld.other.WorldData;
 import dev.meyba.justWorld.utils.ChatUtil;
 import org.bukkit.ChatColor;
@@ -11,19 +13,25 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class WorldCommand implements CommandExecutor, TabCompleter {
     private final JustWorld plugin;
     private final ChatUtil msg;
+    private final Map<String, BukkitTask> pregenTasks;
 
     public WorldCommand(JustWorld plugin) {
         this.plugin = plugin;
         this.msg = plugin.getMessageUtil();
+        this.pregenTasks = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -48,6 +56,10 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             case "clone" -> handleClone(sender, args);
             case "import" -> handleImport(sender, args);
             case "rename" -> handleRename(sender, args);
+            case "confirm" -> handleConfirm(sender);
+            case "cancel" -> handleCancel(sender);
+            case "pregen", "pregenerate" -> handlePregen(sender, args);
+            case "portal" -> handlePortal(sender, args);
             default -> sendHelp(sender);
         }
 
@@ -139,11 +151,22 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        if (world.getPlayers().size() > 0 && args.length < 3) {
-            msg.send(sender, "world-has-players", "{world}", worldName);
+        boolean forceConfirm = args.length >= 3 && args[2].equalsIgnoreCase("confirm");
+
+        if (forceConfirm) {
+            executeDelete(sender, worldName);
             return;
         }
 
+        plugin.getConfirmationManager().requestConfirmation(
+            sender,
+            ConfirmationManager.ConfirmationType.DELETE,
+            worldName,
+            s -> executeDelete(s, worldName)
+        );
+    }
+
+    private void executeDelete(CommandSender sender, String worldName) {
         msg.send(sender, "deleting-world", "{world}", worldName);
 
         plugin.getWorldManager().deleteWorld(worldName).thenAccept(success -> {
@@ -269,6 +292,7 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
 
     private void handleReload(CommandSender sender) {
         plugin.reloadConfig();
+        msg.loadMessages();
         msg.send(sender, "config-reloaded");
     }
 
@@ -367,6 +391,22 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        boolean forceConfirm = args.length >= 4 && args[3].equalsIgnoreCase("confirm");
+
+        if (forceConfirm) {
+            executeRename(sender, oldName, newName);
+            return;
+        }
+
+        plugin.getConfirmationManager().requestConfirmation(
+            sender,
+            ConfirmationManager.ConfirmationType.RENAME,
+            oldName + " -> " + newName,
+            s -> executeRename(s, oldName, newName)
+        );
+    }
+
+    private void executeRename(CommandSender sender, String oldName, String newName) {
         String renamingMsg = msg.getMessage("renaming-world")
                 .replace("{old}", oldName)
                 .replace("{new}", newName);
@@ -384,6 +424,227 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         });
     }
 
+    private void handleConfirm(CommandSender sender) {
+        plugin.getConfirmationManager().confirm(sender);
+    }
+
+    private void handleCancel(CommandSender sender) {
+        plugin.getConfirmationManager().cancel(sender);
+    }
+
+    private void handlePregen(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            msg.send(sender, "usage-pregen");
+            return;
+        }
+
+        String subCommand = args[1].toLowerCase();
+
+        if (subCommand.equals("stop") || subCommand.equals("cancel")) {
+            if (args.length < 3) {
+                msg.send(sender, "usage-pregen-stop");
+                return;
+            }
+            String worldName = args[2];
+            BukkitTask task = pregenTasks.remove(worldName);
+            if (task != null) {
+                task.cancel();
+                msg.send(sender, "pregen-stopped", "{world}", worldName);
+            } else {
+                msg.send(sender, "pregen-not-running", "{world}", worldName);
+            }
+            return;
+        }
+
+        if (subCommand.equals("status")) {
+            if (pregenTasks.isEmpty()) {
+                msg.send(sender, "pregen-no-tasks");
+            } else {
+                sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "ᴀᴄᴛɪᴠᴇ ᴘʀᴇɢᴇɴᴇʀᴀᴛɪᴏɴꜱ:");
+                pregenTasks.keySet().forEach(world ->
+                    sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "- " + world));
+            }
+            return;
+        }
+
+        String worldName = args[1];
+        int radius;
+
+        if (args.length < 3) {
+            msg.send(sender, "usage-pregen");
+            return;
+        }
+
+        try {
+            radius = Integer.parseInt(args[2]);
+            if (radius < 1 || radius > 500) {
+                msg.send(sender, "pregen-invalid-radius");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            msg.send(sender, "pregen-invalid-radius");
+            return;
+        }
+
+        World world = plugin.getWorldManager().getWorld(worldName);
+        if (world == null) {
+            msg.send(sender, "world-not-found", "{world}", worldName);
+            return;
+        }
+
+        if (pregenTasks.containsKey(worldName)) {
+            msg.send(sender, "pregen-already-running", "{world}", worldName);
+            return;
+        }
+
+        startPregeneration(sender, world, radius);
+    }
+
+    private void startPregeneration(CommandSender sender, World world, int radius) {
+        String worldName = world.getName();
+        int totalChunks = (radius * 2 + 1) * (radius * 2 + 1);
+        AtomicInteger generated = new AtomicInteger(0);
+        AtomicInteger currentX = new AtomicInteger(-radius);
+        AtomicInteger currentZ = new AtomicInteger(-radius);
+        AtomicInteger lastProgress = new AtomicInteger(-1);
+
+        Location center = world.getSpawnLocation();
+        int centerChunkX = center.getBlockX() >> 4;
+        int centerChunkZ = center.getBlockZ() >> 4;
+
+        int chunksPerTick = plugin.getConfig().getInt("performance.pregen-chunks-per-tick", 4);
+
+        msg.send(sender, "pregen-started", "{world}", worldName, "{chunks}", String.valueOf(totalChunks));
+
+        BukkitTask task = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
+            for (int i = 0; i < chunksPerTick && currentX.get() <= radius; i++) {
+                int chunkX = centerChunkX + currentX.get();
+                int chunkZ = centerChunkZ + currentZ.get();
+
+                currentZ.incrementAndGet();
+                if (currentZ.get() > radius) {
+                    currentZ.set(-radius);
+                    currentX.incrementAndGet();
+                }
+
+                if (!world.isChunkGenerated(chunkX, chunkZ)) {
+                    world.getChunkAt(chunkX, chunkZ);
+                }
+                generated.incrementAndGet();
+            }
+
+            int progress = (generated.get() * 100) / totalChunks;
+            if (progress / 10 > lastProgress.get()) {
+                lastProgress.set(progress / 10);
+                sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "ᴘʀᴇɢᴇɴ: " + progress + "% (" + generated.get() + "/" + totalChunks + ")");
+            }
+
+            if (currentX.get() > radius) {
+                pregenTasks.remove(worldName).cancel();
+                msg.send(sender, "pregen-complete", "{world}", worldName, "{chunks}", String.valueOf(totalChunks));
+            }
+        }, 1L, 2L);
+
+        pregenTasks.put(worldName, task);
+    }
+
+    private void handlePortal(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            msg.send(sender, "usage-portal");
+            return;
+        }
+
+        String subCommand = args[1].toLowerCase();
+
+        switch (subCommand) {
+            case "link" -> handlePortalLink(sender, args);
+            case "unlink" -> handlePortalUnlink(sender, args);
+            case "list" -> handlePortalList(sender);
+            default -> msg.send(sender, "usage-portal");
+        }
+    }
+
+    private void handlePortalLink(CommandSender sender, String[] args) {
+        if (args.length < 5) {
+            msg.send(sender, "usage-portal-link");
+            return;
+        }
+
+        String portalType = args[2].toLowerCase();
+        String fromWorld = args[3];
+        String toWorld = args[4];
+
+        if (!portalType.equals("nether") && !portalType.equals("end")) {
+            msg.send(sender, "portal-invalid-type");
+            return;
+        }
+
+        PortalManager portalManager = plugin.getPortalManager();
+
+        if (portalType.equals("nether")) {
+            portalManager.setNetherLink(fromWorld, toWorld);
+        } else {
+            portalManager.setEndLink(fromWorld, toWorld);
+        }
+
+        String linkedMsg = msg.getMessage("portal-linked")
+                .replace("{type}", portalType.toUpperCase())
+                .replace("{from}", fromWorld)
+                .replace("{to}", toWorld);
+        sender.sendMessage(msg.getPrefix() + linkedMsg);
+    }
+
+    private void handlePortalUnlink(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            msg.send(sender, "usage-portal-unlink");
+            return;
+        }
+
+        String portalType = args[2].toLowerCase();
+        String fromWorld = args[3];
+
+        if (!portalType.equals("nether") && !portalType.equals("end")) {
+            msg.send(sender, "portal-invalid-type");
+            return;
+        }
+
+        PortalManager portalManager = plugin.getPortalManager();
+
+        if (portalType.equals("nether")) {
+            portalManager.removeNetherLink(fromWorld);
+        } else {
+            portalManager.removeEndLink(fromWorld);
+        }
+
+        msg.send(sender, "portal-unlinked", "{type}", portalType.toUpperCase(), "{world}", fromWorld);
+    }
+
+    private void handlePortalList(CommandSender sender) {
+        PortalManager portalManager = plugin.getPortalManager();
+
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "ᴘᴏʀᴛᴀʟ ʟɪɴᴋꜱ:");
+
+        Map<String, PortalManager.PortalLink> netherLinks = portalManager.getAllNetherLinks();
+        Map<String, PortalManager.PortalLink> endLinks = portalManager.getAllEndLinks();
+
+        if (netherLinks.isEmpty() && endLinks.isEmpty()) {
+            sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "ɴᴏ ᴘᴏʀᴛᴀʟ ʟɪɴᴋꜱ ᴄᴏɴꜰɪɢᴜʀᴇᴅ.");
+            return;
+        }
+
+        if (!netherLinks.isEmpty()) {
+            sender.sendMessage(msg.getPrefix() + ChatColor.GOLD + "ɴᴇᴛʜᴇʀ:");
+            netherLinks.forEach((from, link) ->
+                sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "  " + from + " -> " + link.targetWorld()));
+        }
+
+        if (!endLinks.isEmpty()) {
+            sender.sendMessage(msg.getPrefix() + ChatColor.DARK_PURPLE + "ᴇɴᴅ:");
+            endLinks.forEach((from, link) ->
+                sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "  " + from + " -> " + link.targetWorld()));
+        }
+    }
+
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "ʜᴇʟᴘ ᴍᴇɴᴜ:");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world create <ɴᴀᴍᴇ> [ᴛʏᴘᴇ] [ꜱᴇᴇᴅ] - ᴄʀᴇᴀᴛᴇꜱ ᴀ ɴᴇᴡ ᴡᴏʀʟᴅ.");
@@ -398,6 +659,9 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world list - ʟɪꜱᴛꜱ ᴀʟʟ ᴡᴏʀʟᴅꜱ.");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world gui - ᴏᴘᴇɴꜱ ᴡᴏʀʟᴅ ɢᴜɪ.");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world info <ɴᴀᴍᴇ> - ᴠɪᴇᴡꜱ ᴡᴏʀʟᴅ ɪɴꜰᴏ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world pregen <ᴡᴏʀʟᴅ> <ʀᴀᴅɪᴜꜱ> - ᴘʀᴇɢᴇɴᴇʀᴀᴛᴇꜱ ᴄʜᴜɴᴋꜱ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world portal <ʟɪɴᴋ|ᴜɴʟɪɴᴋ|ʟɪꜱᴛ> - ᴍᴀɴᴀɢᴇꜱ ᴘᴏʀᴛᴀʟꜱ.");
+        sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world confirm/cancel - ᴄᴏɴꜰɪʀᴍꜱ/ᴄᴀɴᴄᴇʟꜱ ᴀᴄᴛɪᴏɴ.");
         sender.sendMessage(msg.getPrefix() + ChatColor.GRAY + "/world reload - ʀᴇʟᴏᴀᴅꜱ ᴛʜᴇ ᴄᴏɴꜰɪɢ.");
     }
 
@@ -406,7 +670,7 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("create", "delete", "clone", "rename", "import", "load", "unload", "tp", "setspawn", "list", "gui", "info", "reload", "help"));
+            completions.addAll(Arrays.asList("create", "delete", "clone", "rename", "import", "load", "unload", "tp", "setspawn", "list", "gui", "info", "pregen", "pregenerate", "portal", "confirm", "cancel", "reload", "help"));
         } else if (args.length == 2) {
             switch (args[0].toLowerCase()) {
                 case "delete", "load", "unload", "tp", "info", "setspawn", "clone", "rename" ->
@@ -415,9 +679,41 @@ public class WorldCommand implements CommandExecutor, TabCompleter {
                                 .toList());
                 case "import" ->
                         completions.addAll(plugin.getWorldManager().getUnloadedWorlds());
+                case "pregen", "pregenerate" -> {
+                        completions.addAll(plugin.getWorldManager().getAllWorlds().stream()
+                                .map(World::getName)
+                                .toList());
+                        completions.addAll(Arrays.asList("stop", "status"));
+                }
+                case "portal" ->
+                        completions.addAll(Arrays.asList("link", "unlink", "list"));
             }
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("create")) {
-            completions.addAll(Arrays.asList("normal", "nether", "end", "void", "flat"));
+        } else if (args.length == 3) {
+            switch (args[0].toLowerCase()) {
+                case "create" -> completions.addAll(Arrays.asList("normal", "nether", "end", "void", "flat"));
+                case "pregen", "pregenerate" -> {
+                    if (args[1].equalsIgnoreCase("stop")) {
+                        completions.addAll(pregenTasks.keySet());
+                    } else {
+                        completions.addAll(Arrays.asList("5", "10", "20", "50", "100"));
+                    }
+                }
+                case "portal" -> {
+                    if (args[1].equalsIgnoreCase("link") || args[1].equalsIgnoreCase("unlink")) {
+                        completions.addAll(Arrays.asList("nether", "end"));
+                    }
+                }
+            }
+        } else if (args.length == 4 && args[0].equalsIgnoreCase("portal")) {
+            if (args[1].equalsIgnoreCase("link") || args[1].equalsIgnoreCase("unlink")) {
+                completions.addAll(plugin.getWorldManager().getAllWorlds().stream()
+                        .map(World::getName)
+                        .toList());
+            }
+        } else if (args.length == 5 && args[0].equalsIgnoreCase("portal") && args[1].equalsIgnoreCase("link")) {
+            completions.addAll(plugin.getWorldManager().getAllWorlds().stream()
+                    .map(World::getName)
+                    .toList());
         }
 
         return completions.stream()

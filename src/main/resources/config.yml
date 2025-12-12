@@ -9,14 +9,14 @@ prefix: "§x§A§2§8§B§5§9§lᴊ§x§A§3§8§C§5§9§lᴜ§x§A§4§8§D§
 # Plugin Settings
 # =======================
 settings:
-  # Enable debug messages
-  debug: false
-
   # Auto-save interval for worlds.yml (in ticks, 20 ticks = 1 second)
   auto-save-interval: 6000
 
   # Enable async world operations (highly recommended for performance)
   async-operations: true
+
+  # Confirmation timeout in seconds for delete/rename operations
+  confirmation-timeout: 30
 
 # =======================
 # Default World Settings
@@ -46,81 +46,48 @@ performance:
   # Pre-generate spawn area (0 = disabled, recommended: 0 for fastest creation)
   pre-generate-radius: 0
 
+  # Chunks to queue per tick during pregeneration (higher = faster but more lag)
+  pregen-chunks-per-tick: 4
+
+  # Maximum pending async chunk loads (prevents memory issues)
+  pregen-max-pending: 16
+
 # Generator types for ultra-fast world creation:
 # - DEFAULT: Standard Minecraft generation (~500-1500ms)
 # - VOID: Empty void world (~50-200ms) - Perfect for lobbies/arenas!
 # - FLAT: Simple flat world (~100-400ms) - Great for building/minigames!
 
 # =======================
-# Messages
+# Portal Linking
 # =======================
-# All messages support color codes (&a, &c, etc.) and hex colors
-# Use {world} for world name placeholder
+# Configure custom portal destinations between worlds
 # =======================
-messages:
-  # World creation messages
-  creating-world: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
-  creating-void: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ᴠᴏɪᴅ)&e..."
-  creating-flat: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ꜰʟᴀᴛ)&e..."
-  world-created: "&aᴡᴏʀʟᴅ &f{world} &aᴄʀᴇᴀᴛᴇᴅ ɪɴ &6{time}&a!"
-  world-create-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴄʀᴇᴀᴛᴇ ᴡᴏʀʟᴅ!"
+portals:
+  # Enable portal linking feature
+  enabled: true
 
-  # World deletion messages
-  deleting-world: "&eᴅᴇʟᴇᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
-  world-deleted: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴇʟᴇᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
-  world-delete-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴅᴇʟᴇᴛᴇ ᴡᴏʀʟᴅ!"
-  world-has-players: "&cᴛʜᴇʀᴇ ᴀʀᴇ ᴘʟᴀʏᴇʀꜱ ɪɴ ᴛʜɪꜱ ᴡᴏʀʟᴅ! ᴜꜱᴇ &f/world delete {world} confirm"
+# =======================
+# Per-World Inventory
+# =======================
+# Separate player inventories per world or world group
+# =======================
+per-world-inventory:
+  # Enable per-world inventory feature
+  enabled: false
 
-  # World loading messages
-  loading-world: "&eʟᴏᴀᴅɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
-  world-loaded: "&aᴡᴏʀʟᴅ &f{world} &aʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
-  world-load-failed: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴏᴇꜱɴ'ᴛ ᴇxɪꜱᴛ ᴏʀ ꜰᴀɪʟᴇᴅ ᴛᴏ ʟᴏᴀᴅ!"
+  # Separate inventories by gamemode (SURVIVAL, CREATIVE, etc.)
+  separate-gamemodes: true
 
-  # World unloading messages
-  unloading-world: "&eᴜɴʟᴏᴀᴅɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
-  world-unloaded: "&aᴡᴏʀʟᴅ &f{world} &aᴜɴʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
-  world-unload-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴜɴʟᴏᴀᴅ ᴡᴏʀʟᴅ!"
+  # List of worlds with separate inventories (empty = all worlds)
+  enabled-worlds: []
 
-  # Teleportation messages
-  teleported: "&aᴛᴇʟᴇᴘᴏʀᴛᴇᴅ ᴛᴏ &f{world}&a!"
-
-  # Error messages
-  world-not-found: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴏᴇꜱɴ'ᴛ ᴇxɪꜱᴛ!"
-  world-not-loaded: "&cᴡᴏʀʟᴅ &f{world} &cɪꜱ ɴᴏᴛ ʟᴏᴀᴅᴇᴅ!"
-  no-permission: "&cʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪꜱꜱɪᴏɴ ᴛᴏ ᴅᴏ ᴛʜᴀᴛ!"
-  player-only: "&cᴏɴʟʏ ᴘʟᴀʏᴇʀꜱ ᴄᴀɴ ᴜꜱᴇ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ!"
-
-  # Usage messages
-  usage-create: "&cᴜꜱᴀɢᴇ: &f/world create <name> [normal|nether|end|void|flat] [seed]"
-  usage-delete: "&cᴜꜱᴀɢᴇ: &f/world delete <name>"
-  usage-load: "&cᴜꜱᴀɢᴇ: &f/world load <name>"
-  usage-unload: "&cᴜꜱᴀɢᴇ: &f/world unload <name>"
-  usage-tp: "&cᴜꜱᴀɢᴇ: &f/world tp <name>"
-  usage-info: "&cᴜꜱᴀɢᴇ: &f/world info <name>"
-
-  # Clone messages
-  cloning-world: "&eᴄʟᴏɴɪɴɢ ᴡᴏʀʟᴅ &f{source} &eᴛᴏ &f{target}&e..."
-  world-cloned: "&aᴡᴏʀʟᴅ &f{source} &aᴄʟᴏɴᴇᴅ ᴛᴏ &f{target}&a!"
-  world-clone-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴄʟᴏɴᴇ ᴡᴏʀʟᴅ!"
-  usage-clone: "&cᴜꜱᴀɢᴇ: &f/world clone <source> <newname>"
-
-  # Spawn messages
-  spawn-set: "&aꜱᴘᴀᴡɴ ꜱᴇᴛ ꜰᴏʀ ᴡᴏʀʟᴅ &f{world}&a!"
-
-  # Import messages
-  importing-world: "&eɪᴍᴘᴏʀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
-  world-imported: "&aᴡᴏʀʟᴅ &f{world} &aɪᴍᴘᴏʀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
-  world-import-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ɪᴍᴘᴏʀᴛ ᴡᴏʀʟᴅ &f{world}&c!"
-  usage-import: "&cᴜꜱᴀɢᴇ: &f/world import <name>"
-
-  # Rename messages
-  renaming-world: "&eʀᴇɴᴀᴍɪɴɢ ᴡᴏʀʟᴅ &f{old} &eᴛᴏ &f{new}&e..."
-  world-renamed: "&aᴡᴏʀʟᴅ &f{old} &aʀᴇɴᴀᴍᴇᴅ ᴛᴏ &f{new}&a!"
-  world-rename-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ʀᴇɴᴀᴍᴇ ᴡᴏʀʟᴅ!"
-  usage-rename: "&cᴜꜱᴀɢᴇ: &f/world rename <old> <new>"
-
-  # Other messages
-  invalid-environment: "&cɪɴᴠᴀʟɪᴅ ᴛʏᴘᴇ! ᴜꜱᴇ: &fnormal, nether, end, void, flat"
-  invalid-seed: "&cɪɴᴠᴀʟɪᴅ ꜱᴇᴇᴅ!"
-  config-reloaded: "&aᴄᴏɴꜰɪɢᴜʀᴀᴛɪᴏɴ ʀᴇʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
-  generator-hint: "&7ɢᴇɴᴇʀᴀᴛᴏʀ ᴛʏᴘᴇꜱ: &fnormal &7(ᴅᴇꜰᴀᴜʟᴛ), &fvoid, &fflat"
+  # Group worlds to share inventories
+  # Example:
+  # groups:
+  #   survival:
+  #     - world
+  #     - world_nether
+  #     - world_the_end
+  #   creative:
+  #     - creative_world
+  groups: {}

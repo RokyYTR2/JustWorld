@@ -2,6 +2,9 @@ package dev.meyba.justWorld;
 
 import dev.meyba.justWorld.command.WorldCommand;
 import dev.meyba.justWorld.gui.WorldGUI;
+import dev.meyba.justWorld.managers.ConfirmationManager;
+import dev.meyba.justWorld.managers.InventoryManager;
+import dev.meyba.justWorld.managers.PortalManager;
 import dev.meyba.justWorld.managers.WorldManager;
 import dev.meyba.justWorld.utils.ChatUtil;
 import dev.meyba.justWorld.utils.VersionChecker;
@@ -11,6 +14,8 @@ public final class JustWorld extends JavaPlugin {
     private WorldManager worldManager;
     private ChatUtil chatUtil;
     private WorldGUI worldGUI;
+    private ConfirmationManager confirmationManager;
+    private PortalManager portalManager;
 
     @Override
     public void onEnable() {
@@ -22,6 +27,17 @@ public final class JustWorld extends JavaPlugin {
 
         worldManager = new WorldManager(this);
         getLogger().info("WorldManager initialized");
+
+        confirmationManager = new ConfirmationManager(this);
+        getLogger().info("ConfirmationManager initialized");
+
+        portalManager = new PortalManager(this);
+        getServer().getPluginManager().registerEvents(portalManager, this);
+        getLogger().info("PortalManager initialized");
+
+        InventoryManager inventoryManager = new InventoryManager(this);
+        getServer().getPluginManager().registerEvents(inventoryManager, this);
+        getLogger().info("InventoryManager initialized");
 
         worldGUI = new WorldGUI(this);
         getServer().getPluginManager().registerEvents(worldGUI, this);
@@ -44,6 +60,9 @@ public final class JustWorld extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (confirmationManager != null) {
+            confirmationManager.shutdown();
+        }
         if (worldManager != null) {
             worldManager.shutdown();
         }
@@ -60,5 +79,13 @@ public final class JustWorld extends JavaPlugin {
 
     public WorldGUI getWorldGUI() {
         return worldGUI;
+    }
+
+    public ConfirmationManager getConfirmationManager() {
+        return confirmationManager;
+    }
+
+    public PortalManager getPortalManager() {
+        return portalManager;
     }
 }

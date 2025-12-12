@@ -1,13 +1,14 @@
 name: JustWorld
-version: '0.0.2'
+version: '0.0.3'
 main: dev.meyba.justWorld.JustWorld
 api-version: '1.21'
 authors: [ Meyba._., Jezevcik20 ]
 description: Just a world plugin.
+
 commands:
   world:
     description: Main world management command
-    usage: /world <create|delete|load|unload|tp|list|info>
+    usage: /world <create|delete|load|unload|tp|list|info|pregen|portal>
     aliases: [w, jw]
     permission: justworld.admin
     permission-message: "You don't have permission to use this command!"
@@ -41,4 +42,13 @@ permissions:
     default: op
   justworld.info:
     description: View world information
+    default: op
+  justworld.pregen:
+    description: Pregenerate world chunks
+    default: op
+  justworld.portal:
+    description: Manage portal links
+    default: op
+  justworld.inventory:
+    description: Bypass per-world inventory
     default: op

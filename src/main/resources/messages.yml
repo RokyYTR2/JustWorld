@@ -1,0 +1,103 @@
+# =======================
+# JustWorld Messages Configuration
+# =======================
+# All messages support color codes (&a, &c, etc.) and hex colors
+# Placeholders: {world}, {source}, {target}, {old}, {new}, {time}, {chunks}, {seconds}, {type}, {from}, {to}
+# =======================
+
+# World creation messages
+creating-world: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+creating-void: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ᴠᴏɪᴅ)&e..."
+creating-flat: "&eᴄʀᴇᴀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world} &7(ꜰʟᴀᴛ)&e..."
+world-created: "&aᴡᴏʀʟᴅ &f{world} &aᴄʀᴇᴀᴛᴇᴅ ɪɴ &6{time}&a!"
+world-create-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴄʀᴇᴀᴛᴇ ᴡᴏʀʟᴅ!"
+
+# World deletion messages
+deleting-world: "&eᴅᴇʟᴇᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+world-deleted: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴇʟᴇᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+world-delete-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴅᴇʟᴇᴛᴇ ᴡᴏʀʟᴅ!"
+world-has-players: "&cᴛʜᴇʀᴇ ᴀʀᴇ ᴘʟᴀʏᴇʀꜱ ɪɴ ᴛʜɪꜱ ᴡᴏʀʟᴅ! ᴜꜱᴇ &f/world delete {world} confirm"
+
+# World loading messages
+loading-world: "&eʟᴏᴀᴅɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+world-loaded: "&aᴡᴏʀʟᴅ &f{world} &aʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+world-load-failed: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴏᴇꜱɴ'ᴛ ᴇxɪꜱᴛ ᴏʀ ꜰᴀɪʟᴇᴅ ᴛᴏ ʟᴏᴀᴅ!"
+
+# World unloading messages
+unloading-world: "&eᴜɴʟᴏᴀᴅɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+world-unloaded: "&aᴡᴏʀʟᴅ &f{world} &aᴜɴʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+world-unload-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴜɴʟᴏᴀᴅ ᴡᴏʀʟᴅ!"
+
+# Teleportation messages
+teleported: "&aᴛᴇʟᴇᴘᴏʀᴛᴇᴅ ᴛᴏ &f{world}&a!"
+
+# Error messages
+world-not-found: "&cᴡᴏʀʟᴅ &f{world} &cᴅᴏᴇꜱɴ'ᴛ ᴇxɪꜱᴛ!"
+world-not-loaded: "&cᴡᴏʀʟᴅ &f{world} &cɪꜱ ɴᴏᴛ ʟᴏᴀᴅᴇᴅ!"
+no-permission: "&cʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴘᴇʀᴍɪꜱꜱɪᴏɴ ᴛᴏ ᴅᴏ ᴛʜᴀᴛ!"
+player-only: "&cᴏɴʟʏ ᴘʟᴀʏᴇʀꜱ ᴄᴀɴ ᴜꜱᴇ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ!"
+
+# Usage messages
+usage-create: "&cᴜꜱᴀɢᴇ: &f/world create <name> [normal|nether|end|void|flat] [seed]"
+usage-delete: "&cᴜꜱᴀɢᴇ: &f/world delete <name>"
+usage-load: "&cᴜꜱᴀɢᴇ: &f/world load <name>"
+usage-unload: "&cᴜꜱᴀɢᴇ: &f/world unload <name>"
+usage-tp: "&cᴜꜱᴀɢᴇ: &f/world tp <name>"
+usage-info: "&cᴜꜱᴀɢᴇ: &f/world info <name>"
+
+# Clone messages
+cloning-world: "&eᴄʟᴏɴɪɴɢ ᴡᴏʀʟᴅ &f{source} &eᴛᴏ &f{target}&e..."
+world-cloned: "&aᴡᴏʀʟᴅ &f{source} &aᴄʟᴏɴᴇᴅ ᴛᴏ &f{target}&a!"
+world-clone-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ᴄʟᴏɴᴇ ᴡᴏʀʟᴅ!"
+usage-clone: "&cᴜꜱᴀɢᴇ: &f/world clone <source> <newname>"
+
+# Spawn messages
+spawn-set: "&aꜱᴘᴀᴡɴ ꜱᴇᴛ ꜰᴏʀ ᴡᴏʀʟᴅ &f{world}&a!"
+
+# Import messages
+importing-world: "&eɪᴍᴘᴏʀᴛɪɴɢ ᴡᴏʀʟᴅ &f{world}&e..."
+world-imported: "&aᴡᴏʀʟᴅ &f{world} &aɪᴍᴘᴏʀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+world-import-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ɪᴍᴘᴏʀᴛ ᴡᴏʀʟᴅ &f{world}&c!"
+usage-import: "&cᴜꜱᴀɢᴇ: &f/world import <name>"
+
+# Rename messages
+renaming-world: "&eʀᴇɴᴀᴍɪɴɢ ᴡᴏʀʟᴅ &f{old} &eᴛᴏ &f{new}&e..."
+world-renamed: "&aᴡᴏʀʟᴅ &f{old} &aʀᴇɴᴀᴍᴇᴅ ᴛᴏ &f{new}&a!"
+world-rename-failed: "&cꜰᴀɪʟᴇᴅ ᴛᴏ ʀᴇɴᴀᴍᴇ ᴡᴏʀʟᴅ!"
+usage-rename: "&cᴜꜱᴀɢᴇ: &f/world rename <old> <new>"
+
+# Other messages
+invalid-environment: "&cɪɴᴠᴀʟɪᴅ ᴛʏᴘᴇ! ᴜꜱᴇ: &fnormal, nether, end, void, flat"
+invalid-seed: "&cɪɴᴠᴀʟɪᴅ ꜱᴇᴇᴅ!"
+config-reloaded: "&aᴄᴏɴꜰɪɢᴜʀᴀᴛɪᴏɴ ʀᴇʟᴏᴀᴅᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!"
+generator-hint: "&7ɢᴇɴᴇʀᴀᴛᴏʀ ᴛʏᴘᴇꜱ: &fnormal &7(ᴅᴇꜰᴀᴜʟᴛ), &fvoid, &fflat"
+
+# Confirmation messages
+confirm-delete: "&cᴀʀᴇ ʏᴏᴜ ꜱᴜʀᴇ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴅᴇʟᴇᴛᴇ &f{target}&c? ᴛʜɪꜱ ᴄᴀɴɴᴏᴛ ʙᴇ ᴜɴᴅᴏɴᴇ!"
+confirm-rename: "&eᴀʀᴇ ʏᴏᴜ ꜱᴜʀᴇ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ʀᴇɴᴀᴍᴇ &f{target}&e?"
+confirm-unload: "&eᴀʀᴇ ʏᴏᴜ ꜱᴜʀᴇ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴜɴʟᴏᴀᴅ &f{target}&e?"
+confirm-hint: "&7ᴛʏᴘᴇ &f/world confirm &7ᴏʀ &f/world cancel &7ᴡɪᴛʜɪɴ &f{seconds} &7ꜱᴇᴄᴏɴᴅꜱ."
+confirmation-expired: "&cᴄᴏɴꜰɪʀᴍᴀᴛɪᴏɴ ᴇxᴘɪʀᴇᴅ!"
+confirmation-cancelled: "&eᴀᴄᴛɪᴏɴ ᴄᴀɴᴄᴇʟʟᴇᴅ."
+no-pending-confirmation: "&cɴᴏ ᴘᴇɴᴅɪɴɢ ᴄᴏɴꜰɪʀᴍᴀᴛɪᴏɴ!"
+
+# Pregeneration messages
+usage-pregen: "&cᴜꜱᴀɢᴇ: &f/world pregen <world> <radius> &7ᴏʀ &f/world pregen stop/status"
+usage-pregen-stop: "&cᴜꜱᴀɢᴇ: &f/world pregen stop <world>"
+pregen-started: "&aꜱᴛᴀʀᴛᴇᴅ ᴘʀᴇɢᴇɴᴇʀᴀᴛɪɴɢ &f{world} &a(&f{chunks} &aᴄʜᴜɴᴋꜱ)"
+pregen-complete: "&aᴘʀᴇɢᴇɴᴇʀᴀᴛɪᴏɴ ᴄᴏᴍᴘʟᴇᴛᴇ ꜰᴏʀ &f{world} &a(&f{chunks} &aᴄʜᴜɴᴋꜱ)"
+pregen-stopped: "&eᴘʀᴇɢᴇɴᴇʀᴀᴛɪᴏɴ ꜱᴛᴏᴘᴘᴇᴅ ꜰᴏʀ &f{world}"
+pregen-not-running: "&cɴᴏ ᴘʀᴇɢᴇɴᴇʀᴀᴛɪᴏɴ ʀᴜɴɴɪɴɢ ꜰᴏʀ &f{world}"
+pregen-already-running: "&cᴘʀᴇɢᴇɴᴇʀᴀᴛɪᴏɴ ᴀʟʀᴇᴀᴅʏ ʀᴜɴɴɪɴɢ ꜰᴏʀ &f{world}"
+pregen-invalid-radius: "&cɪɴᴠᴀʟɪᴅ ʀᴀᴅɪᴜꜱ! ᴍᴜꜱᴛ ʙᴇ 1-500"
+pregen-no-tasks: "&7ɴᴏ ᴀᴄᴛɪᴠᴇ ᴘʀᴇɢᴇɴᴇʀᴀᴛɪᴏɴꜱ."
+
+# Portal messages
+usage-portal: "&cᴜꜱᴀɢᴇ: &f/world portal <link|unlink|list>"
+usage-portal-link: "&cᴜꜱᴀɢᴇ: &f/world portal link <nether|end> <from> <to>"
+usage-portal-unlink: "&cᴜꜱᴀɢᴇ: &f/world portal unlink <nether|end> <from>"
+portal-linked: "&aᴘᴏʀᴛᴀʟ ʟɪɴᴋᴇᴅ: &f{type} &7ꜰʀᴏᴍ &f{from} &7ᴛᴏ &f{to}"
+portal-unlinked: "&eᴘᴏʀᴛᴀʟ ᴜɴʟɪɴᴋᴇᴅ: &f{type} &7ꜰʀᴏᴍ &f{world}"
+portal-invalid-type: "&cɪɴᴠᴀʟɪᴅ ᴘᴏʀᴛᴀʟ ᴛʏᴘᴇ! ᴜꜱᴇ: &fnether &cᴏʀ &fend"
+portal-teleported: "&aᴛᴇʟᴇᴘᴏʀᴛᴇᴅ ᴛᴏ &f{world} &aᴠɪᴀ ᴘᴏʀᴛᴀʟ!"
+portal-world-not-found: "&cᴘᴏʀᴛᴀʟ ᴅᴇꜱᴛɪɴᴀᴛɪᴏɴ ᴡᴏʀʟᴅ &f{world} &cɴᴏᴛ ꜰᴏᴜɴᴅ!"

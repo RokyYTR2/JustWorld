@@ -3,12 +3,25 @@ package dev.meyba.justWorld.utils;
 import dev.meyba.justWorld.JustWorld;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
 
 public class ChatUtil {
     private final JustWorld plugin;
+    private YamlConfiguration messagesConfig;
 
     public ChatUtil(JustWorld plugin) {
         this.plugin = plugin;
+        loadMessages();
+    }
+
+    public void loadMessages() {
+        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            plugin.saveResource("messages.yml", false);
+        }
+        messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
     }
 
     public String getPrefix() {
@@ -17,7 +30,7 @@ public class ChatUtil {
     }
 
     public String getMessage(String path) {
-        String message = plugin.getConfig().getString("messages." + path, "");
+        String message = messagesConfig.getString(path, "");
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
@@ -27,6 +40,14 @@ public class ChatUtil {
 
     public void send(CommandSender sender, String messagePath, String placeholder, String value) {
         String message = getMessage(messagePath).replace(placeholder, value);
+        sender.sendMessage(getPrefix() + message);
+    }
+
+    public void send(CommandSender sender, String messagePath, String... placeholders) {
+        String message = getMessage(messagePath);
+        for (int i = 0; i < placeholders.length - 1; i += 2) {
+            message = message.replace(placeholders[i], placeholders[i + 1]);
+        }
         sender.sendMessage(getPrefix() + message);
     }
 }
