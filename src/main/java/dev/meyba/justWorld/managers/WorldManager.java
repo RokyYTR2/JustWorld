@@ -57,8 +57,6 @@ public class WorldManager {
                 World world = Bukkit.getScheduler().callSyncMethod(plugin, () -> {
                     WorldCreator creator = worldData.toWorldCreator();
 
-                    creator.keepSpawnInMemory(false);
-
                     World newWorld = creator.createWorld();
                     if (newWorld != null) {
                         configureWorld(newWorld, worldData);
