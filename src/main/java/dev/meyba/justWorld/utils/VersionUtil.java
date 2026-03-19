@@ -9,12 +9,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Level;
 
-public class VersionChecker {
+public class VersionUtil {
     private final Plugin plugin;
     private final String githubUser;
     private final String repoName;
 
-    public VersionChecker(Plugin plugin, String githubUser, String repoName) {
+    public VersionUtil(Plugin plugin, String githubUser, String repoName) {
         this.plugin = plugin;
         this.githubUser = githubUser;
         this.repoName = repoName;
@@ -44,7 +44,7 @@ public class VersionChecker {
 
     private String getLatestVersion() throws Exception {
         String urlString = String.format(
-                "https://raw.githubusercontent.com/%s/%s/refs/heads/%s/src/main/resources/plugin.yml",
+                "https://raw.githubusercontent.com/%s/%s/refs/heads/%s/build.gradle",
                 githubUser, repoName, "main"
         );
 
@@ -63,9 +63,16 @@ public class VersionChecker {
                 String line;
 
                 while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("version:")) {
-                        String version = line.substring(line.indexOf(":") + 1).trim();
-                        version = version.replaceAll("['\"]", "");
+                    String trimmed = line.trim();
+                    if (trimmed.startsWith("version =")) {
+                        String version = trimmed.substring("version =".length()).trim();
+                        if ((version.startsWith("'") && version.endsWith("'"))
+                                || (version.startsWith("\"") && version.endsWith("\""))) {
+                            version = version.substring(1, version.length() - 1);
+                        }
+                        if (version.isEmpty()) {
+                            continue;
+                        }
 
                         reader.close();
                         connection.disconnect();

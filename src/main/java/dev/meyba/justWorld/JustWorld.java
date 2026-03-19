@@ -7,7 +7,7 @@ import dev.meyba.justWorld.managers.InventoryManager;
 import dev.meyba.justWorld.managers.PortalManager;
 import dev.meyba.justWorld.managers.WorldManager;
 import dev.meyba.justWorld.utils.ChatUtil;
-import dev.meyba.justWorld.utils.VersionChecker;
+import dev.meyba.justWorld.utils.VersionUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class JustWorld extends JavaPlugin {
@@ -50,7 +50,7 @@ public final class JustWorld extends JavaPlugin {
 
         getLogger().info("Commands registered");
 
-        new VersionChecker(this, "RokyYTR2", "JustWorld").checkForUpdates();
+        new VersionUtil(this, "RokyYTR2", "JustWorld").checkForUpdates();
 
         worldManager.loadAllWorlds().thenRun(() -> {
             long loadTime = System.currentTimeMillis() - startTime;
